@@ -172,8 +172,8 @@ export function RestaurantProvider({ children }) {
       id: orderId,
       customerName,
       customerPhone,
-      deliveryType,
-      address,
+      deliveryType: 'TAKEAWAY',
+      address: address || 'Retiro en mostrador del local',
       items: cart.map((item) => ({
         productId: item.product.id,
         name: item.product.name,
@@ -183,8 +183,8 @@ export function RestaurantProvider({ children }) {
       })),
       subtotal: cartSubtotal,
       discount: cartDiscount,
-      deliveryFee: deliveryType === 'DELIVERY' ? 2.50 : 0,
-      total: cartSubtotal + (deliveryType === 'DELIVERY' ? 2.50 : 0),
+      deliveryFee: 0,
+      total: cartSubtotal,
       paymentMethod,
       // Desacoplamiento de estados:
       // Si paga online o transfer simulamos pagado, si es contra entrega queda PENDING
@@ -192,7 +192,7 @@ export function RestaurantProvider({ children }) {
       // Estado operativo de cocina inicia en RECIBIDO
       operationalStatus: 'RECEIVED',
       createdAt: new Date().toISOString(),
-      estimatedMinutes: deliveryType === 'DELIVERY' ? 35 : 20,
+      estimatedMinutes: 20,
     };
 
     setOrders((prev) => [newOrder, ...prev]);

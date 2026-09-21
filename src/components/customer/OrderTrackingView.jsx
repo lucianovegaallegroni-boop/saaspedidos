@@ -59,9 +59,9 @@ export default function OrderTrackingView() {
     },
     {
       key: 'READY_FOR_PICKUP_DELIVERY',
-      label: currentOrder.deliveryType === 'DELIVERY' ? 'En Camino / Despachado' : 'Listo para Retiro',
-      description: currentOrder.deliveryType === 'DELIVERY' ? 'El repartidor va hacia tu dirección.' : 'Puedes acercarte al mostrador a retirar.',
-      icon: Bike,
+      label: 'Listo para Retiro',
+      description: '¡Tu pedido está listo y empaquetado! Acércate al mostrador a retirar.',
+      icon: ShoppingBag,
     },
     {
       key: 'DELIVERED',
@@ -247,12 +247,10 @@ export default function OrderTrackingView() {
                 <span>-${currentOrder.discount.toFixed(2)}</span>
               </div>
             )}
-            {currentOrder.deliveryFee > 0 && (
-              <div className="flex justify-between">
-                <span>Costo de Envío</span>
-                <span className="font-medium text-slate-900">${currentOrder.deliveryFee.toFixed(2)}</span>
-              </div>
-            )}
+            <div className="flex justify-between text-slate-500">
+              <span>Modalidad</span>
+              <span className="font-semibold text-slate-800">Retiro en el Local (Gratis)</span>
+            </div>
             <div className="pt-1.5 border-t border-slate-200 flex justify-between items-baseline">
               <span className="font-bold text-sm text-slate-900">Total</span>
               <span className="font-black text-base text-slate-900">${currentOrder.total.toFixed(2)}</span>
@@ -260,10 +258,15 @@ export default function OrderTrackingView() {
           </div>
         </div>
 
-        {/* Delivery / Pickup Info */}
+        {/* Pickup Info */}
         <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs text-xs space-y-2">
-          <h3 className="text-sm font-bold text-slate-900 m-0">Destino de Entrega</h3>
-          <p className="text-slate-700 font-medium">{currentOrder.address}</p>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-slate-900 m-0">Punto de Retiro</h3>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">
+              Mostrador
+            </span>
+          </div>
+          <p className="text-slate-800 font-bold">{currentOrder.address}</p>
           <div className="pt-2 flex items-center justify-between text-slate-500 border-t border-slate-100">
             <span>Método de pago: <strong>{currentOrder.paymentMethod}</strong></span>
             <span className="text-[10px] bg-slate-100 px-2 py-1 rounded">Fecha: {new Date(currentOrder.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>

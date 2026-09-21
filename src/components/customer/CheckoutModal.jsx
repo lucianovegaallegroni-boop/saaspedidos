@@ -7,27 +7,21 @@ export default function CheckoutModal({ isOpen, onClose }) {
   const navigate = useNavigate();
   const { cart, cartTotal, createOrder } = useRestaurant();
 
-  const [deliveryType, setDeliveryType] = useState('DELIVERY');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
-  const [address, setAddress] = useState('');
+  const [pickupNotes, setPickupNotes] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('ONLINE_CARD');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
   if (!isOpen) return null;
 
-  const deliveryFee = deliveryType === 'DELIVERY' ? 2.50 : 0;
-  const finalTotal = cartTotal + deliveryFee;
+  const finalTotal = cartTotal;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!customerName.trim() || !customerPhone.trim()) {
       setFormError('Por favor ingresa tu nombre y número de teléfono.');
-      return;
-    }
-    if (deliveryType === 'DELIVERY' && !address.trim()) {
-      setFormError('Por favor especifica tu dirección completa de entrega.');
       return;
     }
 
@@ -39,8 +33,8 @@ export default function CheckoutModal({ isOpen, onClose }) {
       createOrder({
         customerName: customerName.trim(),
         customerPhone: customerPhone.trim(),
-        deliveryType,
-        address: deliveryType === 'DELIVERY' ? address.trim() : (deliveryType === 'TAKEAWAY' ? 'Retiro en mostrador' : address.trim() || 'Mesa #1'),
+        deliveryType: 'TAKEAWAY',
+        address: 'Retiro en mostrador del local (Av. Corrientes 1240)' + (pickupNotes.trim() ? ` - Nota: ${pickupNotes.trim()}` : ''),
         paymentMethod,
       });
       setIsSubmitting(false);
@@ -61,7 +55,7 @@ export default function CheckoutModal({ isOpen, onClose }) {
             <h2 className="text-base font-black tracking-tight text-white m-0">
               Confirmar & Pagar Pedido
             </h2>
-            <p className="text-xs text-slate-400">Total: ${finalTotal.toFixed(2)}</p>
+            <p className="text-xs text-slate-400">Total: ${finalTotal.toFixed(2)} • Retiro en Mostrador</p>
           </div>
           <button
             onClick={onClose}
@@ -79,56 +73,27 @@ export default function CheckoutModal({ isOpen, onClose }) {
             </div>
           )}
 
-          {/* Delivery Type Option */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 block">Tipo de Entrega</label>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => setDeliveryType('DELIVERY')}
-                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-medium transition-all ${
-                  deliveryType === 'DELIVERY'
-                    ? 'border-amber-500 bg-amber-50/50 text-slate-900 font-bold shadow-xs'
-                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                <Bike className="w-4 h-4 text-amber-600 mb-1" />
-                <span>Delivery (+$2.50)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setDeliveryType('TAKEAWAY')}
-                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-medium transition-all ${
-                  deliveryType === 'TAKEAWAY'
-                    ? 'border-amber-500 bg-amber-50/50 text-slate-900 font-bold shadow-xs'
-                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                <ShoppingBag className="w-4 h-4 text-amber-600 mb-1" />
-                <span>Para Retirar</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setDeliveryType('DINE_IN')}
-                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-medium transition-all ${
-                  deliveryType === 'DINE_IN'
-                    ? 'border-amber-500 bg-amber-50/50 text-slate-900 font-bold shadow-xs'
-                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                <UtensilsCrossed className="w-4 h-4 text-amber-600 mb-1" />
-                <span>En Salón / Mesa</span>
-              </button>
+          {/* Exclusive In-Store Pickup Banner */}
+          <div className="p-3.5 bg-amber-50/80 border border-amber-200 rounded-2xl flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold shrink-0">
+                <ShoppingBag className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-900 m-0">Modalidad: Retiro en el Local</h4>
+                <p className="text-[11px] text-slate-600 mt-0.5">Av. Corrientes 1240 • Listo en aprox. 15 - 25 min</p>
+              </div>
             </div>
+            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300 shrink-0">
+              Sin cargo
+            </span>
           </div>
 
           {/* Customer Data */}
           <div className="space-y-2.5">
             <div>
               <label className="text-xs font-bold text-slate-700 block mb-1">
-                Tu Nombre Completo *
+                Tu Nombre Completo * (para llamarte al mostrador)
               </label>
               <input
                 type="text"
@@ -142,7 +107,7 @@ export default function CheckoutModal({ isOpen, onClose }) {
 
             <div>
               <label className="text-xs font-bold text-slate-700 block mb-1">
-                Número de Teléfono / WhatsApp *
+                Número de Teléfono / WhatsApp * (aviso de pedido listo)
               </label>
               <input
                 type="tel"
@@ -156,23 +121,14 @@ export default function CheckoutModal({ isOpen, onClose }) {
 
             <div>
               <label className="text-xs font-bold text-slate-700 block mb-1">
-                {deliveryType === 'DELIVERY'
-                  ? 'Dirección de Entrega (Calle, Número, Depto) *'
-                  : deliveryType === 'DINE_IN'
-                  ? 'Número de Mesa (opcional)'
-                  : 'Punto de retiro'}
+                Nota adicional de retiro (opcional)
               </label>
               <input
                 type="text"
-                disabled={deliveryType === 'TAKEAWAY'}
-                value={deliveryType === 'TAKEAWAY' ? 'Retiro en mostrador del local' : address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder={
-                  deliveryType === 'DELIVERY'
-                    ? 'Ej: Av. Santa Fe 3400 3B (Timbre B)'
-                    : 'Ej: Mesa 7'
-                }
-                className="w-full text-xs sm:text-sm p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:bg-slate-100 disabled:text-slate-500"
+                value={pickupNotes}
+                onChange={(e) => setPickupNotes(e.target.value)}
+                placeholder="Ej: Retira un familiar, llego en 20 minutos..."
+                className="w-full text-xs sm:text-sm p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
             </div>
           </div>

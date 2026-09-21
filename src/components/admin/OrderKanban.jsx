@@ -23,7 +23,7 @@ export default function OrderKanban() {
   const KANBAN_COLUMNS = [
     { id: 'RECEIVED', title: 'Recibidos', icon: ShoppingBag, color: 'border-blue-500 bg-blue-50/40 text-blue-800' },
     { id: 'PREPARING', title: 'En Preparación', icon: ChefHat, color: 'border-purple-500 bg-purple-50/40 text-purple-800' },
-    { id: 'READY_FOR_PICKUP_DELIVERY', title: 'Listos / En Ruta', icon: Bike, color: 'border-teal-500 bg-teal-50/40 text-teal-800' },
+    { id: 'READY_FOR_PICKUP_DELIVERY', title: 'Listos para Retiro', icon: ShoppingBag, color: 'border-teal-500 bg-teal-50/40 text-teal-800' },
     { id: 'DELIVERED', title: 'Entregados', icon: CheckCircle2, color: 'border-slate-500 bg-slate-50/40 text-slate-800' },
   ];
 
@@ -130,8 +130,8 @@ export default function OrderKanban() {
                           <span className="font-black text-sm text-slate-900">
                             #{order.id}
                           </span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-800">
-                            {order.deliveryType}
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
+                            Retiro en Local
                           </span>
                         </div>
                         <h4 className="font-bold text-xs text-slate-800 mt-1 m-0">
@@ -248,8 +248,8 @@ export default function OrderKanban() {
                             onClick={() => updateOrderOperationalStatus(order.id, 'READY_FOR_PICKUP_DELIVERY')}
                             className="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-1.5 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs transition-all"
                           >
-                            <Bike className="w-3.5 h-3.5" />
-                            <span>Marcar Listo / Despachar</span>
+                            <ShoppingBag className="w-3.5 h-3.5" />
+                            <span>Marcar Listo para Retiro</span>
                           </button>
                         )}
 

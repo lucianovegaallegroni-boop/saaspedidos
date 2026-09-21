@@ -152,8 +152,8 @@ export const INITIAL_ORDERS = [
     id: 'ORD-1001',
     customerName: 'Carlos Mendoza',
     customerPhone: '+54 9 11 5544-3322',
-    deliveryType: 'DELIVERY', // 'DELIVERY' | 'TAKEAWAY' | 'DINE_IN'
-    address: 'Av. Corrientes 1240, Depto 4B',
+    deliveryType: 'TAKEAWAY',
+    address: 'Retiro en mostrador del local (Av. Corrientes 1240)',
     items: [
       {
         productId: 'prod-1',
@@ -172,20 +172,20 @@ export const INITIAL_ORDERS = [
     ],
     subtotal: 29.98,
     discount: 5.02,
-    deliveryFee: 2.50,
-    total: 32.48,
-    paymentMethod: 'ONLINE_CARD', // 'CASH_ON_DELIVERY' | 'ONLINE_CARD' | 'BANK_TRANSFER'
-    paymentStatus: 'PAID', // 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED'
-    operationalStatus: 'PREPARING', // 'RECEIVED' | 'PREPARING' | 'READY_FOR_PICKUP_DELIVERY' | 'DELIVERED' | 'CANCELLED'
+    deliveryFee: 0,
+    total: 29.98,
+    paymentMethod: 'ONLINE_CARD',
+    paymentStatus: 'PAID',
+    operationalStatus: 'PREPARING',
     createdAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-    estimatedMinutes: 25,
+    estimatedMinutes: 20,
   },
   {
     id: 'ORD-1002',
     customerName: 'Valeria Gómez',
     customerPhone: '+54 9 11 8877-6655',
     deliveryType: 'TAKEAWAY',
-    address: 'Retiro en mostrador',
+    address: 'Retiro en mostrador del local (Av. Corrientes 1240)',
     items: [
       {
         productId: 'prod-3',
@@ -207,17 +207,17 @@ export const INITIAL_ORDERS = [
     deliveryFee: 0,
     total: 15.89,
     paymentMethod: 'CASH_ON_DELIVERY',
-    paymentStatus: 'PENDING', // Pago contra entrega
+    paymentStatus: 'PENDING',
     operationalStatus: 'RECEIVED',
     createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-    estimatedMinutes: 20,
+    estimatedMinutes: 15,
   },
   {
     id: 'ORD-1003',
     customerName: 'Marcos Benítez',
     customerPhone: '+54 9 11 3322-1100',
-    deliveryType: 'DINE_IN',
-    address: 'Mesa #4',
+    deliveryType: 'TAKEAWAY',
+    address: 'Retiro en mostrador del local (Av. Corrientes 1240)',
     items: [
       {
         productId: 'prod-5',
@@ -237,7 +237,6 @@ export const INITIAL_ORDERS = [
     subtotal: 24.90,
     discount: 5.10,
     deliveryFee: 0,
-    total: 24.90,
     paymentMethod: 'ONLINE_CARD',
     paymentStatus: 'PAID',
     operationalStatus: 'READY_FOR_PICKUP_DELIVERY',
@@ -245,3 +244,4 @@ export const INITIAL_ORDERS = [
     estimatedMinutes: 0,
   },
 ];
+

@@ -38,41 +38,20 @@ export default function MobileHeader() {
           </div>
         </div>
 
-        {/* Order Mode Toggle (Delivery / Retiro / En Mesa) */}
-        <div className="mt-4 grid grid-cols-3 gap-1.5 bg-black/25 backdrop-blur-md p-1 rounded-xl border border-white/15 text-xs font-medium">
-          <button
-            onClick={() => setDeliveryMode('DELIVERY')}
-            className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all ${
-              deliveryMode === 'DELIVERY'
-                ? 'bg-white text-slate-900 font-bold shadow-sm'
-                : 'text-white/90 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <Bike className="w-3.5 h-3.5 text-amber-600" />
-            <span>Delivery</span>
-          </button>
-          <button
-            onClick={() => setDeliveryMode('TAKEAWAY')}
-            className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all ${
-              deliveryMode === 'TAKEAWAY'
-                ? 'bg-white text-slate-900 font-bold shadow-sm'
-                : 'text-white/90 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <ShoppingBag className="w-3.5 h-3.5 text-amber-600" />
-            <span>Retiro</span>
-          </button>
-          <button
-            onClick={() => setDeliveryMode('DINE_IN')}
-            className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all ${
-              deliveryMode === 'DINE_IN'
-                ? 'bg-white text-slate-900 font-bold shadow-sm'
-                : 'text-white/90 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <UtensilsCrossed className="w-3.5 h-3.5 text-amber-600" />
-            <span>En Mesa</span>
-          </button>
+        {/* Exclusive Takeaway / In-Store Pickup Banner */}
+        <div className="mt-3.5 flex items-center justify-between bg-black/25 backdrop-blur-md px-3 py-2 rounded-xl border border-white/15 text-xs text-white">
+          <div className="flex items-center gap-2">
+            <div className="p-1 rounded-lg bg-amber-500 text-slate-950 font-bold shrink-0">
+              <ShoppingBag className="w-3.5 h-3.5" />
+            </div>
+            <div>
+              <p className="font-bold text-white text-xs leading-none">Modalidad: Retiro en el Local</p>
+              <p className="text-[10px] text-amber-200 mt-0.5">Av. Corrientes 1240 • Retiro estimado: 15 - 25 min</p>
+            </div>
+          </div>
+          <span className="text-[10px] font-extrabold uppercase bg-emerald-500/30 text-emerald-200 px-2 py-0.5 rounded-full border border-emerald-400/40 shrink-0">
+            Mostrador
+          </span>
         </div>
       </div>
 

@@ -178,8 +178,8 @@ export default function CartDrawer({ onOpenCheckout }) {
                 </div>
               )}
               <div className="flex justify-between text-slate-600">
-                <span>Costo estimado de entrega</span>
-                <span className="font-medium text-slate-900">Se calcula al pagar</span>
+                <span>Modalidad</span>
+                <span className="font-semibold text-emerald-600">Retiro en el Local (Gratis)</span>
               </div>
               <div className="pt-2 border-t border-slate-200 flex justify-between items-baseline">
                 <span className="font-bold text-sm text-slate-900">Total a pagar</span>
