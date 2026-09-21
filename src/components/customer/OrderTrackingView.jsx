@@ -53,7 +53,7 @@ export default function OrderTrackingView() {
     },
     {
       key: 'PREPARING',
-      label: 'En Cocina',
+      label: 'En Preparación',
       description: 'Nuestros chefs están preparando tus platos con ingredientes frescos.',
       icon: ChefHat,
     },
@@ -122,14 +122,14 @@ export default function OrderTrackingView() {
 
       <div className="max-w-xl mx-auto p-4 space-y-4">
         {/* Estimated Time Card */}
-        <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
+        <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
               <Clock className="w-6 h-6 animate-spin-slow" />
             </div>
-            <div>
-              <p className="text-xs text-slate-500 font-medium">Tiempo Estimado de Entrega</p>
-              <h3 className="text-xl font-black text-slate-900 m-0">
+            <div className="min-w-0">
+              <p className="text-[11px] sm:text-xs text-slate-500 font-medium">Tiempo Estimado de Retiro</p>
+              <h3 className="text-base sm:text-xl font-black text-slate-900 m-0">
                 {currentOrder.operationalStatus === 'DELIVERED'
                   ? '¡Orden Entregada!'
                   : currentOrder.operationalStatus === 'CANCELLED'
@@ -138,8 +138,8 @@ export default function OrderTrackingView() {
               </h3>
             </div>
           </div>
-          <div className="text-right">
-            <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${operationalMeta.color}`}>
+          <div className="text-right shrink-0">
+            <span className={`text-xs font-black px-3 py-1.5 rounded-full border inline-block whitespace-nowrap shadow-2xs ${operationalMeta.color}`}>
               {operationalMeta.label}
             </span>
           </div>
@@ -176,17 +176,17 @@ export default function OrderTrackingView() {
                     )}
                   </div>
 
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
                       <h4
-                        className={`text-xs sm:text-sm font-bold m-0 ${
+                        className={`text-xs sm:text-sm font-bold m-0 whitespace-nowrap shrink-0 ${
                           isCurrent ? 'text-amber-600 font-extrabold' : isCompleted ? 'text-slate-900' : 'text-slate-400'
                         }`}
                       >
                         {step.label}
                       </h4>
                       {isCurrent && (
-                        <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                        <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 whitespace-nowrap shrink-0">
                           En progreso
                         </span>
                       )}

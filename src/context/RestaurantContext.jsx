@@ -11,7 +11,7 @@ export const PAYMENT_STATUSES = {
 
 export const OPERATIONAL_STATUSES = {
   RECEIVED: { id: 'RECEIVED', label: 'Recibido', step: 1, color: 'bg-blue-100 text-blue-800 border-blue-300' },
-  PREPARING: { id: 'PREPARING', label: 'En preparación', step: 2, color: 'bg-purple-100 text-purple-800 border-purple-300' },
+  PREPARING: { id: 'PREPARING', label: 'En Preparación', step: 2, color: 'bg-purple-100 text-purple-800 border-purple-300' },
   READY_FOR_PICKUP_DELIVERY: { id: 'READY_FOR_PICKUP_DELIVERY', label: 'Listo para entrega', step: 3, color: 'bg-teal-100 text-teal-800 border-teal-300' },
   DELIVERED: { id: 'DELIVERED', label: 'Entregado', step: 4, color: 'bg-slate-100 text-slate-800 border-slate-300' },
   CANCELLED: { id: 'CANCELLED', label: 'Cancelado', step: 0, color: 'bg-rose-100 text-rose-800 border-rose-300' },

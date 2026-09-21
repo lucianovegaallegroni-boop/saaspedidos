@@ -75,10 +75,10 @@ export default function OrderKanban() {
           </div>
 
           {/* Column Filter Tabs (Mobile friendly) */}
-          <div className="flex items-center gap-1 overflow-x-auto p-1 bg-slate-100 rounded-xl border border-slate-200">
+          <div className="flex items-center gap-1.5 overflow-x-auto p-1 bg-slate-100 rounded-xl border border-slate-200 w-full sm:w-auto no-scrollbar">
             <button
               onClick={() => setSelectedColumn('ALL')}
-              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap shrink-0 ${
                 selectedColumn === 'ALL'
                   ? 'bg-white text-slate-900 shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -92,7 +92,7 @@ export default function OrderKanban() {
                 <button
                   key={col.id}
                   onClick={() => setSelectedColumn(col.id)}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap shrink-0 ${
                     selectedColumn === col.id
                       ? 'bg-white text-slate-900 shadow-2xs'
                       : 'text-slate-600 hover:text-slate-900'
@@ -224,9 +224,9 @@ export default function OrderKanban() {
 
                     {/* Operational Status Action */}
                     <div>
-                      <div className="flex items-center justify-between mb-1 text-[11px]">
-                        <span className="font-bold text-slate-600">Estado Cocina:</span>
-                        <span className={`px-2 py-0.5 rounded-full font-extrabold border text-[10px] ${operationalMeta.color}`}>
+                      <div className="flex items-center justify-between gap-2 mb-1 text-[11px]">
+                        <span className="font-bold text-slate-600 shrink-0">Estado Cocina:</span>
+                        <span className={`px-2.5 py-0.5 rounded-full font-extrabold border text-[10px] whitespace-nowrap shrink-0 ${operationalMeta.color}`}>
                           {operationalMeta.label}
                         </span>
                       </div>
@@ -236,9 +236,9 @@ export default function OrderKanban() {
                         {order.operationalStatus === 'RECEIVED' && (
                           <button
                             onClick={() => updateOrderOperationalStatus(order.id, 'PREPARING')}
-                            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-1.5 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs transition-all"
+                            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-1.5 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs transition-all whitespace-nowrap"
                           >
-                            <ChefHat className="w-3.5 h-3.5" />
+                            <ChefHat className="w-3.5 h-3.5 shrink-0" />
                             <span>Iniciar Preparación</span>
                           </button>
                         )}
@@ -246,9 +246,9 @@ export default function OrderKanban() {
                         {order.operationalStatus === 'PREPARING' && (
                           <button
                             onClick={() => updateOrderOperationalStatus(order.id, 'READY_FOR_PICKUP_DELIVERY')}
-                            className="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-1.5 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs transition-all"
+                            className="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-1.5 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs transition-all whitespace-nowrap"
                           >
-                            <ShoppingBag className="w-3.5 h-3.5" />
+                            <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
                             <span>Marcar Listo para Retiro</span>
                           </button>
                         )}
