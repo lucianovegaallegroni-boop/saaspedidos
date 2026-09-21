@@ -21,6 +21,15 @@ npm run dev
 npm run build
 ```
 
+### Rutas y Vistas Aparte de la Aplicación
+
+| Ruta | Vista | Descripción |
+| :--- | :--- | :--- |
+| **`/`** | **Menú Cliente (Página Inicial)** | Experiencia pura para el comensal. No muestra controles de administración ni opciones de salida para mantener la inmersión de compra. |
+| **`/seguimiento`** | **Seguimiento de Pedido** | Pantalla dedicada con stepper visual en tiempo real para rastrear la orden y consultar estados de pago y cocina. |
+| **`/admin/cocina`** | **Cocina & Pedidos** | Tablero Kanban exclusivo para la cocina con control independiente de estados y alertas en vivo. |
+| **`/admin/inventario`** | **Catálogo & Stock** | Panel administrativo con cálculo automático de margen de rentabilidad, alertas de stock bajo y CRUD de productos. |
+
 ### Funcionalidades del Frontend
 
 1. **Módulo Cliente (Mobile-First):**

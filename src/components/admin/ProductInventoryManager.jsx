@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
+import AdminNavbar from './AdminNavbar';
 import { 
   Plus, 
   Search, 
@@ -48,6 +49,7 @@ export default function ProductInventoryManager() {
 
   return (
     <div className="min-h-screen bg-slate-100 pb-16">
+      <AdminNavbar />
       {/* Header */}
       <div className="bg-slate-900 text-white p-4 border-b border-slate-800">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">

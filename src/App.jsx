@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { RestaurantProvider, useRestaurant } from './context/RestaurantContext';
-import Navbar from './components/Navbar';
 import MobileHeader from './components/customer/MobileHeader';
 import CategoryPills from './components/customer/CategoryPills';
 import FeaturedPromos from './components/customer/FeaturedPromos';
@@ -12,10 +12,10 @@ import OrderTrackingView from './components/customer/OrderTrackingView';
 import BottomNav from './components/customer/BottomNav';
 import OrderKanban from './components/admin/OrderKanban';
 import ProductInventoryManager from './components/admin/ProductInventoryManager';
-import { Smartphone, Sparkles, Wifi, Battery, Signal } from 'lucide-react';
+import { Clock, MapPin, Compass, ShieldCheck } from 'lucide-react';
 
 function CustomerMenuView() {
-  const { products, activeCategory, searchQuery } = useRestaurant();
+  const { products, activeCategory, searchQuery, orders, currentTrackingOrderId } = useRestaurant();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
@@ -26,6 +26,8 @@ function CustomerMenuView() {
       p.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCat && matchesSearch;
   });
+
+  const hasRecentOrder = orders.length > 0;
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-between">
@@ -64,10 +66,48 @@ function CustomerMenuView() {
               />
             ))
           )}
+
+          {/* Customer Restaurant Footer */}
+          <footer className="pt-6 pb-4 border-t border-slate-200/80 text-center space-y-3">
+            {hasRecentOrder && (
+              <div className="p-3 bg-amber-500/10 border border-amber-300/60 rounded-2xl max-w-md mx-auto">
+                <p className="text-xs text-amber-900 font-medium">¿Realizaste una orden recientemente?</p>
+                <Link
+                  to="/seguimiento"
+                  className="mt-1.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold shadow-xs transition-all"
+                >
+                  <Compass className="w-3.5 h-3.5" />
+                  <span>Consultar Seguimiento de tu Pedido</span>
+                </Link>
+              </div>
+            )}
+
+            <div className="text-[11px] text-slate-400 space-y-1">
+              <p className="flex items-center justify-center gap-1">
+                <Clock className="w-3 h-3 text-slate-400" />
+                <span>Horario de Atención: Lun - Dom | 12:00 a 23:30 hs</span>
+              </p>
+              <p className="flex items-center justify-center gap-1">
+                <MapPin className="w-3 h-3 text-slate-400" />
+                <span>Burger & Pizza Craft Co. - Sucursal Central</span>
+              </p>
+            </div>
+
+            {/* Discreet portal link for restaurant staff / owner */}
+            <div className="pt-4 border-t border-slate-100">
+              <Link
+                to="/admin/cocina"
+                className="text-[10px] text-slate-400 hover:text-slate-600 transition-colors inline-flex items-center gap-1"
+              >
+                <ShieldCheck className="w-3 h-3" />
+                <span>Acceso Personal de Cocina & Administración</span>
+              </Link>
+            </div>
+          </footer>
         </div>
       </div>
 
-      {/* Floating Bottom Cart Bar */}
+      {/* Floating Bottom Cart Bar (Mobile-first) */}
       <BottomNav />
 
       {/* Slide-over Cart Drawer */}
@@ -88,70 +128,26 @@ function CustomerMenuView() {
   );
 }
 
-function MainContent() {
-  const { activeView, isMobileFrame } = useRestaurant();
-
-  const renderActiveView = () => {
-    switch (activeView) {
-      case 'customer-menu':
-        return <CustomerMenuView />;
-      case 'customer-tracking':
-        return <OrderTrackingView />;
-      case 'admin-kanban':
-        return <OrderKanban />;
-      case 'admin-inventory':
-        return <ProductInventoryManager />;
-      default:
-        return <CustomerMenuView />;
-    }
-  };
-
-  // If mobile frame simulation is enabled for customer views
-  if (isMobileFrame && (activeView === 'customer-menu' || activeView === 'customer-tracking')) {
-    return (
-      <div className="min-h-[calc(100vh-60px)] bg-slate-900/95 py-6 px-4 flex flex-col items-center justify-center">
-        {/* Smartphone Shell Mockup */}
-        <div className="w-full max-w-[410px] bg-black rounded-[48px] p-3.5 shadow-2xl shadow-black/80 ring-1 ring-white/10 relative">
-          {/* Speaker / Dynamic Island Notch */}
-          <div className="absolute top-5 left-1/2 -translate-x-1/2 w-28 h-4 bg-black rounded-full z-40 flex items-center justify-end px-3">
-            <div className="w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-700"></div>
-          </div>
-
-          {/* Status Bar */}
-          <div className="bg-slate-900 text-white px-6 pt-2 pb-1 rounded-t-[36px] flex items-center justify-between text-[11px] font-bold z-30 relative select-none">
-            <span>9:41</span>
-            <div className="flex items-center gap-1.5 text-slate-300">
-              <Signal className="w-3 h-3" />
-              <Wifi className="w-3 h-3" />
-              <Battery className="w-3.5 h-3.5" />
-            </div>
-          </div>
-
-          {/* Screen Content Container with native-like scroll */}
-          <div className="bg-slate-50 rounded-b-[36px] overflow-hidden max-h-[780px] overflow-y-auto no-scrollbar relative">
-            {renderActiveView()}
-          </div>
-        </div>
-
-        <p className="text-xs text-slate-400 mt-3 flex items-center gap-1.5">
-          <Smartphone className="w-3.5 h-3.5 text-amber-400" />
-          <span>Vista simulador de Smartphone iPhone / Android (Mobile-First)</span>
-        </p>
-      </div>
-    );
-  }
-
-  // Full-width Responsive Mode (Naturally optimized for real mobile screens or desktop)
-  return <main>{renderActiveView()}</main>;
-}
-
 export default function App() {
   return (
     <RestaurantProvider>
-      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
-        <Navbar />
-        <MainContent />
-      </div>
+      <BrowserRouter>
+        <Routes>
+          {/* 1. Vista Pública de Menú Cliente (Página inicial limpia) */}
+          <Route path="/" element={<CustomerMenuView />} />
+
+          {/* 2. Vista de Seguimiento de Pedidos (Aparte) */}
+          <Route path="/seguimiento" element={<OrderTrackingView />} />
+
+          {/* 3. Vistas de Administración & Cocina (Aparte) */}
+          <Route path="/admin" element={<Navigate to="/admin/cocina" replace />} />
+          <Route path="/admin/cocina" element={<OrderKanban />} />
+          <Route path="/admin/inventario" element={<ProductInventoryManager />} />
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
     </RestaurantProvider>
   );
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useRestaurant, PAYMENT_STATUSES, OPERATIONAL_STATUSES } from '../../context/RestaurantContext';
 import { 
   CheckCircle2, 
@@ -16,11 +17,11 @@ import {
 } from 'lucide-react';
 
 export default function OrderTrackingView() {
+  const navigate = useNavigate();
   const { 
     orders, 
     currentTrackingOrderId, 
-    setCurrentTrackingOrderId, 
-    setActiveView 
+    setCurrentTrackingOrderId 
   } = useRestaurant();
 
   const currentOrder = orders.find((o) => o.id === currentTrackingOrderId) || orders[0];
@@ -30,7 +31,7 @@ export default function OrderTrackingView() {
       <div className="p-8 text-center space-y-3">
         <p className="text-slate-500 text-sm">No hay pedidos registrados para seguimiento.</p>
         <button
-          onClick={() => setActiveView('customer-menu')}
+          onClick={() => navigate('/')}
           className="px-4 py-2 bg-amber-500 text-slate-900 font-bold rounded-xl text-xs"
         >
           Ir al Menú
@@ -78,7 +79,7 @@ export default function OrderTrackingView() {
       <div className="bg-slate-900 text-white p-4 border-b border-slate-800">
         <div className="flex items-center justify-between gap-2">
           <button
-            onClick={() => setActiveView('customer-menu')}
+            onClick={() => navigate('/')}
             className="flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 font-semibold"
           >
             <ArrowLeft className="w-4 h-4" />

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, CreditCard, Banknote, QrCode, Bike, ShoppingBag, UtensilsCrossed, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 
 export default function CheckoutModal({ isOpen, onClose }) {
+  const navigate = useNavigate();
   const { cart, cartTotal, createOrder } = useRestaurant();
 
   const [deliveryType, setDeliveryType] = useState('DELIVERY');
@@ -43,6 +45,7 @@ export default function CheckoutModal({ isOpen, onClose }) {
       });
       setIsSubmitting(false);
       onClose();
+      navigate('/seguimiento');
     }, 600);
   };
 
