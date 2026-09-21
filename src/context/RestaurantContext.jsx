@@ -151,7 +151,7 @@ export function RestaurantProvider({ children }) {
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   // Checkout and Order creation
-  const createOrder = ({ customerName, customerPhone, deliveryType, address, paymentMethod }) => {
+  const createOrder = ({ customerName, customerPhone, address, paymentMethod, receiptImage }) => {
     // Generate Order ID
     const nextNum = orders.length + 1001;
     const orderId = `ORD-${nextNum}`;
@@ -173,7 +173,7 @@ export function RestaurantProvider({ children }) {
       customerName,
       customerPhone,
       deliveryType: 'TAKEAWAY',
-      address: address || 'Retiro en mostrador del local',
+      address: address || 'Retiro en mostrador del local (Av. Corrientes 1240)',
       items: cart.map((item) => ({
         productId: item.product.id,
         name: item.product.name,
@@ -185,10 +185,11 @@ export function RestaurantProvider({ children }) {
       discount: cartDiscount,
       deliveryFee: 0,
       total: cartSubtotal,
-      paymentMethod,
+      paymentMethod: paymentMethod || 'YAPPY_TRANSFER',
+      receiptImage: receiptImage || null,
       // Desacoplamiento de estados:
-      // Si paga online o transfer simulamos pagado, si es contra entrega queda PENDING
-      paymentStatus: paymentMethod === 'CASH_ON_DELIVERY' ? 'PENDING' : 'PAID',
+      // Yappy/Transferencia con comprobante inicia como PENDING para verificación de caja o PAID
+      paymentStatus: paymentMethod === 'PAY_IN_STORE' ? 'PENDING' : 'PAID',
       // Estado operativo de cocina inicia en RECIBIDO
       operationalStatus: 'RECEIVED',
       createdAt: new Date().toISOString(),

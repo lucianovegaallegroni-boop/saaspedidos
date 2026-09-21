@@ -267,10 +267,34 @@ export default function OrderTrackingView() {
             </span>
           </div>
           <p className="text-slate-800 font-bold">{currentOrder.address}</p>
-          <div className="pt-2 flex items-center justify-between text-slate-500 border-t border-slate-100">
-            <span>Método de pago: <strong>{currentOrder.paymentMethod}</strong></span>
-            <span className="text-[10px] bg-slate-100 px-2 py-1 rounded">Fecha: {new Date(currentOrder.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          <div className="pt-2 flex flex-wrap items-center justify-between gap-2 text-slate-500 border-t border-slate-100">
+            <span>
+              Modo de pago: <strong>
+                {currentOrder.paymentMethod === 'YAPPY_TRANSFER'
+                  ? 'Yappy / Transferencia'
+                  : currentOrder.paymentMethod === 'PAY_IN_STORE'
+                  ? 'Pagar en el Local'
+                  : currentOrder.paymentMethod}
+              </strong>
+            </span>
+            <span className="text-[10px] bg-slate-100 px-2 py-1 rounded font-medium">
+              Hora: {new Date(currentOrder.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
           </div>
+
+          {currentOrder.receiptImage && (
+            <div className="mt-2 p-2.5 bg-blue-50/70 border border-blue-200 rounded-xl flex items-center gap-3">
+              <img
+                src={currentOrder.receiptImage}
+                alt="Comprobante"
+                className="w-12 h-12 object-cover rounded-lg border border-blue-200 bg-white"
+              />
+              <div>
+                <p className="text-xs font-bold text-blue-950">Comprobante de Pago Adjuntado</p>
+                <p className="text-[11px] text-blue-700">Verificado por el restaurante</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

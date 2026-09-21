@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, CreditCard, Banknote, QrCode, Bike, ShoppingBag, UtensilsCrossed, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { 
+  X, 
+  ShoppingBag, 
+  ShieldCheck, 
+  CheckCircle2, 
+  UploadCloud, 
+  Image as ImageIcon, 
+  Trash2, 
+  Building2, 
+  Smartphone, 
+  Store,
+  Check
+} from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 
 export default function CheckoutModal({ isOpen, onClose }) {
@@ -10,7 +22,10 @@ export default function CheckoutModal({ isOpen, onClose }) {
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [pickupNotes, setPickupNotes] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('ONLINE_CARD');
+  // Modo de pago: 'YAPPY_TRANSFER' o 'PAY_IN_STORE'
+  const [paymentMode, setPaymentMode] = useState('YAPPY_TRANSFER');
+  const [receiptImage, setReceiptImage] = useState(null);
+  const [receiptFileName, setReceiptFileName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
@@ -18,10 +33,38 @@ export default function CheckoutModal({ isOpen, onClose }) {
 
   const finalTotal = cartTotal;
 
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 8 * 1024 * 1024) {
+        setFormError('La foto o comprobante supera el límite de 8 MB.');
+        return;
+      }
+      setReceiptFileName(file.name);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setReceiptImage(reader.result);
+        setFormError('');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveReceipt = () => {
+    setReceiptImage(null);
+    setReceiptFileName('');
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!customerName.trim() || !customerPhone.trim()) {
       setFormError('Por favor ingresa tu nombre y número de teléfono.');
+      return;
+    }
+
+    // Validar comprobante obligatorio si seleccionó Yappy o Transferencia
+    if (paymentMode === 'YAPPY_TRANSFER' && !receiptImage) {
+      setFormError('Por favor sube la foto o captura de tu comprobante de Yappy o transferencia.');
       return;
     }
 
@@ -35,7 +78,8 @@ export default function CheckoutModal({ isOpen, onClose }) {
         customerPhone: customerPhone.trim(),
         deliveryType: 'TAKEAWAY',
         address: 'Retiro en mostrador del local (Av. Corrientes 1240)' + (pickupNotes.trim() ? ` - Nota: ${pickupNotes.trim()}` : ''),
-        paymentMethod,
+        paymentMethod: paymentMode,
+        receiptImage: paymentMode === 'YAPPY_TRANSFER' ? receiptImage : null,
       });
       setIsSubmitting(false);
       onClose();
@@ -114,7 +158,7 @@ export default function CheckoutModal({ isOpen, onClose }) {
                 required
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
-                placeholder="Ej. +54 9 11 9876-5432"
+                placeholder="Ej. +507 6988-5432"
                 className="w-full text-xs sm:text-sm p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
             </div>
@@ -133,91 +177,159 @@ export default function CheckoutModal({ isOpen, onClose }) {
             </div>
           </div>
 
-          {/* Payment Method Selector */}
-          <div className="space-y-1.5 pt-1">
-            <label className="text-xs font-bold text-slate-700 block">Método de Pago</label>
-            <div className="space-y-2">
+          {/* Modo de Pago Selector */}
+          <div className="space-y-2 pt-1">
+            <label className="text-xs font-black text-slate-900 block">Modo de Pago</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {/* Opción 1: Yappy o Transferencia */}
               <label
-                onClick={() => setPaymentMethod('ONLINE_CARD')}
-                className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
-                  paymentMethod === 'ONLINE_CARD'
-                    ? 'border-amber-500 bg-amber-50/50 text-slate-900 font-semibold ring-1 ring-amber-500'
-                    : 'border-slate-200 hover:bg-slate-50'
+                onClick={() => setPaymentMode('YAPPY_TRANSFER')}
+                className={`flex items-start gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${
+                  paymentMode === 'YAPPY_TRANSFER'
+                    ? 'border-amber-500 bg-amber-50/60 text-slate-900 font-bold ring-2 ring-amber-500/50 shadow-xs'
+                    : 'border-slate-200 hover:bg-slate-50 text-slate-700'
                 }`}
               >
-                <div className="flex items-center gap-2.5 text-xs">
-                  <CreditCard className="w-4 h-4 text-amber-600 shrink-0" />
-                  <div>
-                    <p className="font-bold text-slate-900 leading-tight">Tarjeta Débito / Crédito</p>
-                    <p className="text-[11px] text-slate-500">Pago inmediato (Estado: Pagado)</p>
-                  </div>
+                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                  <Smartphone className="w-4 h-4" />
                 </div>
-                <input
-                  type="radio"
-                  name="payment"
-                  checked={paymentMethod === 'ONLINE_CARD'}
-                  onChange={() => setPaymentMethod('ONLINE_CARD')}
-                  className="text-amber-600 focus:ring-amber-500"
-                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <p className="font-extrabold text-xs text-slate-900 leading-tight">Yappy o Transferencia</p>
+                    <input
+                      type="radio"
+                      name="payment_mode"
+                      checked={paymentMode === 'YAPPY_TRANSFER'}
+                      onChange={() => setPaymentMode('YAPPY_TRANSFER')}
+                      className="text-amber-600 focus:ring-amber-500 shrink-0"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-500 font-normal mt-0.5">Adjuntas captura del comprobante</p>
+                </div>
               </label>
 
+              {/* Opción 2: Pagar en el Local */}
               <label
-                onClick={() => setPaymentMethod('CASH_ON_DELIVERY')}
-                className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
-                  paymentMethod === 'CASH_ON_DELIVERY'
-                    ? 'border-amber-500 bg-amber-50/50 text-slate-900 font-semibold ring-1 ring-amber-500'
-                    : 'border-slate-200 hover:bg-slate-50'
+                onClick={() => setPaymentMode('PAY_IN_STORE')}
+                className={`flex items-start gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${
+                  paymentMode === 'PAY_IN_STORE'
+                    ? 'border-amber-500 bg-amber-50/60 text-slate-900 font-bold ring-2 ring-amber-500/50 shadow-xs'
+                    : 'border-slate-200 hover:bg-slate-50 text-slate-700'
                 }`}
               >
-                <div className="flex items-center gap-2.5 text-xs">
-                  <Banknote className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <div>
-                    <p className="font-bold text-slate-900 leading-tight">Efectivo contra Entrega</p>
-                    <p className="text-[11px] text-slate-500">Pagas al recibir (Estado: Pendiente)</p>
-                  </div>
+                <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                  <Store className="w-4 h-4" />
                 </div>
-                <input
-                  type="radio"
-                  name="payment"
-                  checked={paymentMethod === 'CASH_ON_DELIVERY'}
-                  onChange={() => setPaymentMethod('CASH_ON_DELIVERY')}
-                  className="text-amber-600 focus:ring-amber-500"
-                />
-              </label>
-
-              <label
-                onClick={() => setPaymentMethod('BANK_TRANSFER')}
-                className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
-                  paymentMethod === 'BANK_TRANSFER'
-                    ? 'border-amber-500 bg-amber-50/50 text-slate-900 font-semibold ring-1 ring-amber-500'
-                    : 'border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                <div className="flex items-center gap-2.5 text-xs">
-                  <QrCode className="w-4 h-4 text-blue-600 shrink-0" />
-                  <div>
-                    <p className="font-bold text-slate-900 leading-tight">Transferencia / QR Alias</p>
-                    <p className="text-[11px] text-slate-500">Envío de comprobante por WhatsApp</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <p className="font-extrabold text-xs text-slate-900 leading-tight">Pagar en el Local</p>
+                    <input
+                      type="radio"
+                      name="payment_mode"
+                      checked={paymentMode === 'PAY_IN_STORE'}
+                      onChange={() => setPaymentMode('PAY_IN_STORE')}
+                      className="text-amber-600 focus:ring-amber-500 shrink-0"
+                    />
                   </div>
+                  <p className="text-[11px] text-slate-500 font-normal mt-0.5">Efectivo o tarjeta al retirar</p>
                 </div>
-                <input
-                  type="radio"
-                  name="payment"
-                  checked={paymentMethod === 'BANK_TRANSFER'}
-                  onChange={() => setPaymentMethod('BANK_TRANSFER')}
-                  className="text-amber-600 focus:ring-amber-500"
-                />
               </label>
             </div>
           </div>
 
-          {/* Architecture info callout */}
-          <div className="p-3 bg-slate-100 rounded-xl text-[11px] text-slate-600 flex items-start gap-2 leading-relaxed">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-            <span>
-              <strong>Arquitectura desacoplada:</strong> Al confirmar, la cocina recibe el pedido inmediatamente en estado <em>Recibido</em>, mientras el estado de pago opera de manera independiente.
-            </span>
-          </div>
+          {/* Cuadro condicional: Solo aparece si el modo es Yappy o Transferencia */}
+          {paymentMode === 'YAPPY_TRANSFER' ? (
+            <div className="p-4 bg-gradient-to-b from-blue-50/70 to-slate-50 border border-blue-200/90 rounded-2xl space-y-3 animate-in fade-in zoom-in-95 duration-200">
+              {/* Account details for payment */}
+              <div className="space-y-1.5 text-xs">
+                <div className="flex items-center gap-1.5 font-bold text-blue-950">
+                  <Smartphone className="w-4 h-4 text-blue-600" />
+                  <span>Datos para realizar el pago (${finalTotal.toFixed(2)}):</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-white border border-blue-100 space-y-1 text-[11px] text-slate-700 shadow-2xs">
+                  <p className="flex justify-between items-center">
+                    <span className="font-semibold text-slate-900">Yappy:</span>
+                    <span className="font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">6988-1234 (@burgercraft)</span>
+                  </p>
+                  <p className="flex justify-between items-center">
+                    <span className="font-semibold text-slate-900">Banco General:</span>
+                    <span className="font-mono text-slate-600">Cta Cte. 03-01-01-987654-3</span>
+                  </p>
+                  <p className="text-[10px] text-slate-400">Titular: Burger & Pizza Craft Co. S.A.</p>
+                </div>
+              </div>
+
+              {/* Upload Box for Receipt Photo */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-900 flex items-center justify-between">
+                  <span>Subir Foto del Comprobante *</span>
+                  {receiptImage && (
+                    <span className="text-emerald-700 text-[10px] font-bold flex items-center gap-1">
+                      <Check className="w-3 h-3 stroke-[3]" /> Listo
+                    </span>
+                  )}
+                </label>
+
+                {!receiptImage ? (
+                  <label className="border-2 border-dashed border-blue-300 hover:border-blue-500 bg-white rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-blue-50/40 group">
+                    <div className="w-11 h-11 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+                      <UploadCloud className="w-6 h-6" />
+                    </div>
+                    <p className="text-xs font-bold text-slate-800 text-center">
+                      Toca aquí para seleccionar o tomar foto
+                    </p>
+                    <p className="text-[10px] text-slate-500 text-center mt-0.5">
+                      Captura de pantalla de Yappy o voucher de transferencia (JPG, PNG)
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                  </label>
+                ) : (
+                  <div className="p-3 bg-white border border-emerald-200 rounded-2xl flex items-center justify-between gap-3 shadow-2xs">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <img
+                        src={receiptImage}
+                        alt="Comprobante de pago"
+                        className="w-14 h-14 object-cover rounded-xl border border-slate-200 shrink-0 bg-slate-100"
+                      />
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-slate-900 truncate">
+                          {receiptFileName || 'Comprobante_Yappy.jpg'}
+                        </p>
+                        <p className="text-[11px] text-emerald-600 font-medium flex items-center gap-1 mt-0.5">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Foto adjuntada con éxito
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleRemoveReceipt}
+                      className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors shrink-0"
+                      title="Quitar foto"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* Aviso cuando selecciona Pagar en el Local (No se muestra el cuadro de foto) */
+            <div className="p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-2xl text-xs text-emerald-950 flex items-start gap-2.5 animate-in fade-in duration-150">
+              <Store className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-emerald-900">Pagas en mostrador al retirar</p>
+                <p className="text-[11px] text-emerald-800/80 mt-0.5 leading-relaxed">
+                  No necesitas adjuntar ningún comprobante previo. Podrás abonar con efectivo o tarjeta cuando tu comida esté lista.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Submit Button */}
           <div className="pt-2">

@@ -19,6 +19,7 @@ import {
 export default function OrderKanban() {
   const { orders, updateOrderPaymentStatus, updateOrderOperationalStatus } = useRestaurant();
   const [selectedColumn, setSelectedColumn] = useState('ALL'); // 'ALL' or specific status for mobile tabs
+  const [previewImage, setPreviewImage] = useState(null);
 
   const KANBAN_COLUMNS = [
     { id: 'RECEIVED', title: 'Recibidos', icon: ShoppingBag, color: 'border-blue-500 bg-blue-50/40 text-blue-800' },
@@ -173,8 +174,34 @@ export default function OrderKanban() {
                       ))}
                     </div>
 
-                    <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100">
-                      <strong>Destino:</strong> {order.address}
+                    <div className="space-y-1 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
+                      <div>
+                        <strong>Modo de Pago:</strong>{' '}
+                        <span className="font-semibold text-slate-800">
+                          {order.paymentMethod === 'YAPPY_TRANSFER'
+                            ? 'Yappy / Transferencia'
+                            : order.paymentMethod === 'PAY_IN_STORE'
+                            ? 'Pagar en el Local'
+                            : order.paymentMethod}
+                        </span>
+                      </div>
+
+                      {order.receiptImage && (
+                        <div className="pt-1">
+                          <button
+                            type="button"
+                            onClick={() => setPreviewImage(order.receiptImage)}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold border border-blue-200 transition-colors"
+                          >
+                            <img
+                              src={order.receiptImage}
+                              alt="Comprobante"
+                              className="w-4 h-4 rounded object-cover"
+                            />
+                            <span>Ver Comprobante Yappy</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -286,7 +313,48 @@ export default function OrderKanban() {
             })}
           </div>
         )}
+
+        {/* Modal para ver comprobante de Yappy / Transferencia */}
+        {previewImage && (
+          <div 
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4"
+            onClick={() => setPreviewImage(null)}
+          >
+            <div 
+              className="bg-white rounded-3xl overflow-hidden max-w-md w-full shadow-2xl p-4 space-y-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <h3 className="font-extrabold text-sm text-slate-900 m-0">Comprobante de Pago Yappy</h3>
+                <button
+                  type="button"
+                  onClick={() => setPreviewImage(null)}
+                  className="text-xs font-bold text-slate-500 hover:text-slate-900 px-2 py-1 rounded-lg hover:bg-slate-100"
+                >
+                  Cerrar ✕
+                </button>
+              </div>
+
+              <div className="max-h-[70vh] overflow-auto rounded-2xl bg-slate-950 flex items-center justify-center">
+                <img
+                  src={previewImage}
+                  alt="Comprobante completo"
+                  className="w-full h-auto max-h-[68vh] object-contain"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setPreviewImage(null)}
+                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl"
+              >
+                Cerrar Visor
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
