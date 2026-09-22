@@ -206,18 +206,23 @@ export function RestaurantProvider({ children }) {
       });
     });
 
+    const firstCartProduct = cart[0]?.product;
+
     const newOrder = {
       id: orderId,
       customerName,
       customerPhone,
       deliveryType: 'TAKEAWAY',
       address: address || 'Retiro en mostrador del local (Av. Corrientes 1240)',
+      firstProductImage: firstCartProduct?.imageUrl || null,
+      firstProductName: firstCartProduct?.name || null,
       items: cart.map((item) => ({
         productId: item.product.id,
         name: item.product.name,
         price: item.product.isPromo && item.product.promoPrice ? item.product.promoPrice : item.product.price,
         quantity: item.quantity,
         notes: item.notes,
+        imageUrl: item.product.imageUrl || null,
       })),
       subtotal: cartSubtotal,
       discount: cartDiscount,

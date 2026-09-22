@@ -95,7 +95,7 @@ function OrderCard({
               </button>
 
               <a
-                href={`https://api.whatsapp.com/send?phone=${order.customerPhone.replace(/\D/g, '')}&text=${encodeURIComponent(`Hola ${order.customerName}, puedes consultar el estado en tiempo real de tu pedido #${order.id} aquí: ${window.location.origin}/seguimiento/${order.id}`)}`}
+                href={`https://api.whatsapp.com/send?phone=${order.customerPhone.replace(/\D/g, '')}&text=${encodeURIComponent(`Hola ${order.customerName}, puedes consultar el estado en tiempo real de tu pedido #${order.id} aquí: https://saaspedidos.vercel.app/seguimiento/${order.id}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-[10px] font-bold text-emerald-700 shadow-2xs transition-all active:scale-95"
@@ -346,7 +346,7 @@ export default function OrderKanban() {
   );
 
   const handleCopyLink = (orderId) => {
-    const url = `${window.location.origin}/seguimiento/${orderId}`;
+    const url = `https://saaspedidos.vercel.app/seguimiento/${orderId}`;
     navigator.clipboard.writeText(url);
     setCopiedOrderId(orderId);
     setTimeout(() => setCopiedOrderId(null), 2500);

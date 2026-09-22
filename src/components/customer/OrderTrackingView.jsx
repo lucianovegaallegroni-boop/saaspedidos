@@ -1,33 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRestaurant, PAYMENT_STATUSES, OPERATIONAL_STATUSES } from '../../context/RestaurantContext';
 import { 
   CheckCircle2, 
   Clock, 
   ChefHat, 
-  Bike, 
   ShoppingBag, 
-  CreditCard, 
   AlertCircle, 
   Sparkles, 
-  RefreshCw, 
-  Phone, 
-  QrCode, 
   ArrowLeft,
   Copy,
   Check,
   Share2,
-  ExternalLink
+  Utensils,
+  Store
 } from 'lucide-react';
 
 export default function OrderTrackingView() {
   const navigate = useNavigate();
   const { orderId } = useParams();
-  const { orders } = useRestaurant();
+  const { orders, products } = useRestaurant();
   const [copied, setCopied] = useState(false);
 
   // Buscar estrictamente el pedido único especificado en la URL dinámica
   const currentOrder = orders.find((o) => o.id === orderId);
+
+  // Obtener la imagen y nombre del primer producto del carrito/pedido
+  const firstItem = currentOrder?.items?.[0];
+  const matchingProduct = products.find(
+    (p) => p.id === firstItem?.productId || p.name === firstItem?.name
+  );
+  const firstProductImage =
+    currentOrder?.firstProductImage ||
+    firstItem?.imageUrl ||
+    matchingProduct?.imageUrl ||
+    'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80';
+  const firstProductName =
+    currentOrder?.firstProductName ||
+    firstItem?.name ||
+    'Tu Pedido';
+
+  // Actualizar etiquetas Open Graph y Título dinámicamente en el documento
+  useEffect(() => {
+    if (currentOrder) {
+      document.title = `Pedido #${currentOrder.id} (${firstProductName}) | saasPedidos`;
+
+      const setMeta = (property, content, isName = false) => {
+        const selector = isName ? `meta[name="${property}"]` : `meta[property="${property}"]`;
+        let el = document.querySelector(selector);
+        if (!el) {
+          el = document.createElement('meta');
+          if (isName) el.setAttribute('name', property);
+          else el.setAttribute('property', property);
+          document.head.appendChild(el);
+        }
+        el.setAttribute('content', content);
+      };
+
+      const vercelUrl = `https://saaspedidos.vercel.app/seguimiento/${currentOrder.id}`;
+      setMeta('og:title', `Pedido #${currentOrder.id} - ${firstProductName} | saasPedidos`);
+      setMeta('og:description', `Consulta el estado de tu pedido en tiempo real.`);
+      setMeta('og:image', firstProductImage);
+      setMeta('og:url', vercelUrl);
+      setMeta('twitter:image', firstProductImage);
+      setMeta('twitter:title', `Pedido #${currentOrder.id} - ${firstProductName}`);
+    }
+  }, [currentOrder, firstProductImage, firstProductName]);
 
   if (!currentOrder) {
     return (
@@ -43,7 +81,7 @@ export default function OrderTrackingView() {
         </div>
         <button
           onClick={() => navigate('/')}
-          className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-bold rounded-xl text-xs transition-all shadow-xs"
+          className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-bold rounded-xl text-xs transition-all shadow-xs cursor-pointer"
         >
           Volver al Menú
         </button>
@@ -54,11 +92,11 @@ export default function OrderTrackingView() {
   const paymentMeta = PAYMENT_STATUSES[currentOrder.paymentStatus] || PAYMENT_STATUSES.PENDING;
   const operationalMeta = OPERATIONAL_STATUSES[currentOrder.operationalStatus] || OPERATIONAL_STATUSES.RECEIVED;
 
-  const trackingUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const publicTrackingUrl = `https://saaspedidos.vercel.app/seguimiento/${currentOrder.id}`;
 
   const handleCopyLink = () => {
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(trackingUrl);
+      navigator.clipboard.writeText(publicTrackingUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     }
@@ -66,7 +104,7 @@ export default function OrderTrackingView() {
 
   const handleShareWhatsApp = () => {
     const text = encodeURIComponent(
-      `¡Hola ${currentOrder.customerName}! Puedes seguir el estado en tiempo real de tu pedido #${currentOrder.id} en este enlace: ${trackingUrl}`
+      `¡Hola ${currentOrder.customerName}! Puedes seguir el estado en tiempo real de tu pedido #${currentOrder.id} (${firstProductName}) en este enlace:\n${publicTrackingUrl}`
     );
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   };
@@ -108,7 +146,7 @@ export default function OrderTrackingView() {
         <div className="flex items-center justify-between gap-2">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 font-semibold"
+            className="flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 font-semibold cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Volver al Menú</span>
@@ -137,7 +175,7 @@ export default function OrderTrackingView() {
           <div className="flex items-center gap-1.5">
             <button
               onClick={handleCopyLink}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-all active:scale-95 shadow-2xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-all active:scale-95 shadow-2xs cursor-pointer"
               title="Copiar enlace directo de este pedido"
             >
               {copied ? (
@@ -155,17 +193,51 @@ export default function OrderTrackingView() {
 
             <button
               onClick={handleShareWhatsApp}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all active:scale-95 shadow-xs"
-              title="Enviar enlace por WhatsApp"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all active:scale-95 shadow-xs cursor-pointer"
+              title="Compartir enlace por WhatsApp"
             >
               <Share2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">WhatsApp</span>
+              <span>WhatsApp</span>
             </button>
           </div>
         </div>
       </div>
 
       <div className="max-w-xl mx-auto p-4 space-y-4">
+        {/* HERO CARD: Imagen del Primer Producto del Carrito */}
+        <div className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-md">
+          <div className="relative h-48 sm:h-56 w-full bg-slate-950 overflow-hidden">
+            <img
+              src={firstProductImage}
+              alt={firstProductName}
+              className="w-full h-full object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/10" />
+
+            <div className="absolute bottom-3.5 left-4 right-4 flex items-end justify-between gap-3">
+              <div className="min-w-0">
+                <span className="text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 inline-block mb-1 shadow-xs">
+                  Primer Producto del Carrito
+                </span>
+                <h3 className="text-base sm:text-xl font-black text-white m-0 drop-shadow-sm truncate">
+                  {firstProductName}
+                </h3>
+                <p className="text-xs text-slate-300 drop-shadow-xs mt-0.5">
+                  {currentOrder.items.length > 1
+                    ? `+ ${currentOrder.items.length - 1} producto(s) adicional(es) en esta orden`
+                    : 'Preparado al momento con ingredientes frescos'}
+                </p>
+              </div>
+
+              <div className="shrink-0">
+                <span className={`text-xs font-black px-3 py-1.5 rounded-full border shadow-md whitespace-nowrap inline-block ${operationalMeta.color}`}>
+                  {operationalMeta.label}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Estimated Time Card */}
         <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
@@ -246,39 +318,42 @@ export default function OrderTrackingView() {
           </div>
         </div>
 
-        {/* State Decoupling Explanation Banner */}
-        <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl p-4 border border-indigo-100 text-xs text-indigo-950 space-y-1.5">
-          <div className="flex items-center gap-1.5 font-bold text-indigo-900">
-            <Sparkles className="w-4 h-4 text-indigo-600" />
-            <span>Desacoplamiento de Estados (Arquitectura)</span>
-          </div>
-          <p className="text-indigo-800/90 leading-relaxed text-[11px]">
-            El estado de pago <strong>({paymentMeta.label})</strong> y el estado operativo de cocina <strong>({operationalMeta.label})</strong> se actualizan de forma completamente asíncrona e independiente. Por ejemplo, en órdenes contra entrega, cocina inicia la preparación mientras el pago permanece pendiente hasta la entrega física.
-          </p>
-        </div>
-
-        {/* Order Details Breakdown */}
+        {/* Order Details Breakdown con fotos de los productos */}
         <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs space-y-3">
           <h3 className="text-sm font-bold text-slate-900 m-0">Detalle de la Orden</h3>
 
           <div className="divide-y divide-slate-100">
-            {currentOrder.items.map((item, idx) => (
-              <div key={idx} className="py-2.5 flex justify-between items-start text-xs">
-                <div>
-                  <p className="font-bold text-slate-800">
-                    {item.quantity}x {item.name}
-                  </p>
-                  {item.notes && (
-                    <p className="text-[11px] text-amber-700 italic mt-0.5">
-                      "{item.notes}"
-                    </p>
-                  )}
+            {currentOrder.items.map((item, idx) => {
+              const itemProduct = products.find(
+                (p) => p.id === item.productId || p.name === item.name
+              );
+              const itemImg = item.imageUrl || itemProduct?.imageUrl || firstProductImage;
+
+              return (
+                <div key={idx} className="py-3 flex items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <img
+                      src={itemImg}
+                      alt={item.name}
+                      className="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0 bg-slate-100 shadow-2xs"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-bold text-slate-800 truncate m-0">
+                        <span className="text-amber-600 font-extrabold">{item.quantity}x</span> {item.name}
+                      </p>
+                      {item.notes && (
+                        <p className="text-[11px] text-amber-700 italic mt-0.5 truncate m-0">
+                          "{item.notes}"
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <span className="font-bold text-slate-900 shrink-0">
+                    ${(item.price * item.quantity).toFixed(2)}
+                  </span>
                 </div>
-                <span className="font-bold text-slate-900">
-                  ${(item.price * item.quantity).toFixed(2)}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="pt-2 border-t border-slate-200 space-y-1 text-xs text-slate-600">
