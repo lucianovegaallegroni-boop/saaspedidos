@@ -163,16 +163,6 @@ export default function OrderTrackingView() {
             </button>
           </div>
         </div>
-
-        {/* Unique dynamic URL info bar */}
-        <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
-          <span className="truncate max-w-[280px] sm:max-w-md font-mono text-[10px] text-slate-400">
-            {trackingUrl}
-          </span>
-          <span className="text-[10px] text-amber-400 font-semibold shrink-0 ml-2">
-            URL Única
-          </span>
-        </div>
       </div>
 
       <div className="max-w-xl mx-auto p-4 space-y-4">
