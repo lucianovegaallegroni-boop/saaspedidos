@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   X,
-  DollarSign,
   TrendingUp,
   AlertTriangle,
-  Sparkles,
-  Plus,
   Check,
   Upload,
   Camera,
-  Trash2,
-  Image as ImageIcon
+  Trash2
 } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 
@@ -27,9 +23,6 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
   const [imagePreview, setImagePreview] = useState('');
   const [imageFileName, setImageFileName] = useState('');
   const [uploadError, setUploadError] = useState('');
-  const [isPromo, setIsPromo] = useState(false);
-  const [promoPrice, setPromoPrice] = useState('');
-  const [promoLabel, setPromoLabel] = useState('20% OFF');
 
   useEffect(() => {
     if (productToEdit) {
@@ -43,9 +36,6 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
       setImagePreview(productToEdit.imageUrl || '');
       setImageFileName('');
       setUploadError('');
-      setIsPromo(Boolean(productToEdit.isPromo));
-      setPromoPrice(productToEdit.promoPrice ? productToEdit.promoPrice.toString() : '');
-      setPromoLabel(productToEdit.promoLabel || '20% OFF');
     } else {
       setName('');
       setCategoryId('cat-burgers');
@@ -54,12 +44,9 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
       setCost('3.50');
       setStock('20');
       setMinStockAlert('5');
-      setImagePreview('https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=600&q=80');
+      setImagePreview('');
       setImageFileName('');
       setUploadError('');
-      setIsPromo(false);
-      setPromoPrice('');
-      setPromoLabel('20% OFF');
     }
   }, [productToEdit, isOpen]);
 
@@ -67,12 +54,10 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
 
   const numPrice = parseFloat(price) || 0;
   const numCost = parseFloat(cost) || 0;
-  const numPromoPrice = parseFloat(promoPrice) || 0;
 
   // Real-time calculations
-  const effectivePrice = isPromo && numPromoPrice > 0 ? numPromoPrice : numPrice;
-  const marginPercent = calculateMargin(effectivePrice, numCost);
-  const netProfit = effectivePrice - numCost;
+  const marginPercent = calculateMargin(numPrice, numCost);
+  const netProfit = numPrice - numCost;
 
   const getMarginBadge = (margin) => {
     if (margin >= 60) return 'bg-emerald-100 text-emerald-800 border-emerald-300';
@@ -117,9 +102,6 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
       stock: parseInt(stock, 10) || 0,
       minStockAlert: parseInt(minStockAlert, 10) || 5,
       imageUrl: imagePreview || 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=600&q=80',
-      isPromo,
-      promoPrice: isPromo && numPromoPrice > 0 ? numPromoPrice : null,
-      promoLabel: isPromo ? promoLabel : null,
       isAvailable: (parseInt(stock, 10) || 0) > 0,
     };
 
@@ -132,9 +114,12 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 animate-in fade-in duration-200">
+    <div 
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 animate-in fade-in duration-200 cursor-pointer"
+      onClick={onClose}
+    >
       <div 
-        className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col"
+        className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col cursor-default"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
@@ -349,56 +334,6 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
                 className="w-full text-xs sm:text-sm p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
               />
             </div>
-          </div>
-
-          {/* Promotions / Discount Module */}
-          <div className="p-3.5 bg-amber-50/60 border border-amber-200 rounded-2xl space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-                <Sparkles className="w-4 h-4 text-amber-600" />
-                <span>Módulo de Ofertas & Descuentos Programables</span>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isPromo}
-                  onChange={(e) => setIsPromo(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-              </label>
-            </div>
-
-            {isPromo && (
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <div>
-                  <label className="text-[11px] font-bold text-slate-700 block mb-1">
-                    Precio de Oferta ($)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={promoPrice}
-                    onChange={(e) => setPromoPrice(e.target.value)}
-                    placeholder="Ej. 8.99"
-                    className="w-full text-xs sm:text-sm p-2.5 border border-amber-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-bold text-slate-700 block mb-1">
-                    Etiqueta / Badge
-                  </label>
-                  <input
-                    type="text"
-                    value={promoLabel}
-                    onChange={(e) => setPromoLabel(e.target.value)}
-                    placeholder="Ej. 20% OFF, Flash Sale"
-                    className="w-full text-xs sm:text-sm p-2.5 border border-amber-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
-                  />
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Submit Button */}

@@ -1,14 +1,20 @@
 import React from 'react';
-import { useRestaurant } from '../../context/RestaurantContext';
-import { Sparkles, Plus, Check } from 'lucide-react';
+import { useRestaurant, isPromotionActive } from '../../context/RestaurantContext';
+import { Sparkles, Plus, Check, Clock } from 'lucide-react';
 
 export default function FeaturedPromos({ onSelectProduct }) {
-  const { products, addToCart, cart } = useRestaurant();
+  const { products, promotions = [], addToCart, cart } = useRestaurant();
 
-  // Filter promotional products
-  const promoProducts = products.filter((p) => p.isPromo && p.isAvailable && p.stock > 0);
+  // Find active promotions mapped to available products
+  const activePromoItems = promotions
+    .filter((promo) => isPromotionActive(promo))
+    .map((promo) => {
+      const product = products.find((p) => p.id === promo.productId);
+      return { promo, product };
+    })
+    .filter(({ product }) => product && product.isAvailable && product.stock > 0);
 
-  if (promoProducts.length === 0) return null;
+  if (activePromoItems.length === 0) return null;
 
   return (
     <div className="py-3 px-3 bg-gradient-to-b from-amber-50/50 to-white">
@@ -28,8 +34,9 @@ export default function FeaturedPromos({ onSelectProduct }) {
 
       {/* Horizontal Carousel */}
       <div className="flex gap-3 overflow-x-auto pb-2 pt-1 no-scrollbar -mx-3 px-3">
-        {promoProducts.map((product) => {
+        {activePromoItems.map(({ promo, product }) => {
           const inCart = cart.find((item) => item.product.id === product.id);
+          const hasTimeLimit = Boolean(promo.startTime && promo.endTime);
 
           return (
             <div
@@ -47,10 +54,16 @@ export default function FeaturedPromos({ onSelectProduct }) {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
                 />
-                <div className="absolute top-2 left-2 flex flex-col gap-1">
+                <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
                   <span className="bg-rose-600 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-md shadow-sm">
-                    {product.promoLabel || 'OFERTA'}
+                    {promo.promoLabel || 'OFERTA'}
                   </span>
+                  {hasTimeLimit && (
+                    <span className="bg-purple-900/90 text-purple-200 text-[9px] font-bold px-1.5 py-0.5 rounded backdrop-blur-xs flex items-center gap-0.5">
+                      <Clock className="w-2.5 h-2.5" />
+                      <span>{promo.startTime}-{promo.endTime}</span>
+                    </span>
+                  )}
                 </div>
                 {product.stock <= product.minStockAlert && (
                   <span className="absolute bottom-2 right-2 bg-amber-500/90 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
@@ -80,7 +93,7 @@ export default function FeaturedPromos({ onSelectProduct }) {
                       ${product.price.toFixed(2)}
                     </span>
                     <span className="text-sm font-extrabold text-rose-600">
-                      ${product.promoPrice.toFixed(2)}
+                      ${promo.promoPrice.toFixed(2)}
                     </span>
                   </div>
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { RestaurantProvider, useRestaurant } from './context/RestaurantContext';
+import { AuthProvider } from './context/AuthContext';
 import MobileHeader from './components/customer/MobileHeader';
 import CategoryPills from './components/customer/CategoryPills';
 import FeaturedPromos from './components/customer/FeaturedPromos';
@@ -12,11 +13,14 @@ import OrderTrackingView from './components/customer/OrderTrackingView';
 import BottomNav from './components/customer/BottomNav';
 import OrderKanban from './components/admin/OrderKanban';
 import ProductInventoryManager from './components/admin/ProductInventoryManager';
+import PromotionManager from './components/admin/PromotionManager';
 import AdminDashboard from './components/admin/AdminDashboard';
-import { Clock, MapPin, Compass, ShieldCheck } from 'lucide-react';
+import AdminLogin from './components/admin/AdminLogin';
+import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute';
+import { Clock, MapPin, Compass } from 'lucide-react';
 
 function CustomerMenuView() {
-  const { products, activeCategory, searchQuery, orders, currentTrackingOrderId } = useRestaurant();
+  const { products, activeCategory, searchQuery, orders } = useRestaurant();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
@@ -93,17 +97,6 @@ function CustomerMenuView() {
                 <span>Burger & Pizza Craft Co. - Sucursal Central</span>
               </p>
             </div>
-
-            {/* Discreet portal link for restaurant staff / owner */}
-            <div className="pt-4 border-t border-slate-100">
-              <Link
-                to="/admin"
-                className="text-[10px] text-slate-400 hover:text-slate-600 transition-colors inline-flex items-center gap-1"
-              >
-                <ShieldCheck className="w-3 h-3" />
-                <span>Acceso Personal de Cocina & Administración</span>
-              </Link>
-            </div>
           </footer>
         </div>
       </div>
@@ -132,24 +125,58 @@ function CustomerMenuView() {
 export default function App() {
   return (
     <RestaurantProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* 1. Vista Pública de Menú Cliente (Página inicial limpia) */}
-          <Route path="/" element={<CustomerMenuView />} />
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* 1. Vista Pública de Menú Cliente (Página inicial limpia) */}
+            <Route path="/" element={<CustomerMenuView />} />
 
-          {/* 2. Vista de Seguimiento Dinámica Única por Pedido */}
-          <Route path="/seguimiento/:orderId" element={<OrderTrackingView />} />
-          <Route path="/seguimiento" element={<Navigate to="/" replace />} />
+            {/* 2. Vista de Seguimiento Dinámica Única por Pedido */}
+            <Route path="/seguimiento/:orderId" element={<OrderTrackingView />} />
+            <Route path="/seguimiento" element={<Navigate to="/" replace />} />
 
-          {/* 3. Vistas de Administración & Cocina (Aparte) */}
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/cocina" element={<OrderKanban />} />
-          <Route path="/admin/inventario" element={<ProductInventoryManager />} />
+            {/* 3. Pantalla de Login Administrativo */}
+            <Route path="/admin/login" element={<AdminLogin />} />
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
+            {/* 4. Vistas de Administración Protegidas por Rol */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedAdminRoute requiredPath="/admin">
+                  <AdminDashboard />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/admin/cocina"
+              element={
+                <ProtectedAdminRoute requiredPath="/admin/cocina">
+                  <OrderKanban />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/admin/inventario"
+              element={
+                <ProtectedAdminRoute requiredPath="/admin/inventario">
+                  <ProductInventoryManager />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/admin/promociones"
+              element={
+                <ProtectedAdminRoute requiredPath="/admin/promociones">
+                  <PromotionManager />
+                </ProtectedAdminRoute>
+              }
+            />
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </RestaurantProvider>
   );
 }

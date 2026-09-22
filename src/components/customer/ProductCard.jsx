@@ -3,13 +3,16 @@ import { useRestaurant } from '../../context/RestaurantContext';
 import { Plus, Minus, AlertCircle } from 'lucide-react';
 
 export default function ProductCard({ product, onOpenDetail }) {
-  const { cart, addToCart, updateCartQuantity } = useRestaurant();
+  const { cart, addToCart, updateCartQuantity, getActivePromotionForProduct, getProductEffectivePrice } = useRestaurant();
 
   const cartItem = cart.find((item) => item.product.id === product.id);
   const currentQty = cartItem ? cartItem.quantity : 0;
   const isOutOfStock = product.stock <= 0;
   const isLowStock = product.stock > 0 && product.stock <= product.minStockAlert;
-  const effectivePrice = product.isPromo && product.promoPrice ? product.promoPrice : product.price;
+  
+  const activePromo = getActivePromotionForProduct ? getActivePromotionForProduct(product.id) : null;
+  const effectivePrice = getProductEffectivePrice ? getProductEffectivePrice(product) : product.price;
+  const hasPromo = Boolean(activePromo);
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-md transition-all p-3 flex gap-3.5 relative overflow-hidden">
@@ -26,9 +29,9 @@ export default function ProductCard({ product, onOpenDetail }) {
           }`}
           loading="lazy"
         />
-        {product.isPromo && (
+        {hasPromo && (
           <span className="absolute top-1 left-1 bg-rose-600 text-white text-[9px] font-black uppercase px-1.5 py-0.5 rounded shadow-xs">
-            {product.promoLabel || 'OFERTA'}
+            {activePromo.promoLabel || 'OFERTA'}
           </span>
         )}
         {isOutOfStock && (
@@ -65,7 +68,7 @@ export default function ProductCard({ product, onOpenDetail }) {
             <span className="text-sm sm:text-base font-black text-slate-900">
               ${effectivePrice.toFixed(2)}
             </span>
-            {product.isPromo && (
+            {hasPromo && (
               <span className="text-xs text-slate-400 line-through">
                 ${product.price.toFixed(2)}
               </span>

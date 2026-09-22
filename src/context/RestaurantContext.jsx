@@ -1,7 +1,45 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { INITIAL_CATEGORIES, INITIAL_PRODUCTS, INITIAL_ORDERS } from '../data/mockData';
+import { INITIAL_CATEGORIES, INITIAL_PRODUCTS, INITIAL_ORDERS, INITIAL_PROMOTIONS } from '../data/mockData';
 
 const RestaurantContext = createContext(null);
+
+export function checkPromotionStatus(promo, now = new Date()) {
+  if (!promo || !promo.isActive) return { active: false, reason: 'Inactiva manualmente' };
+
+  if (promo.startDate) {
+    const start = new Date(`${promo.startDate}T00:00:00`);
+    if (now < start) return { active: false, reason: 'Programada (aún no inicia)' };
+  }
+
+  if (promo.endDate) {
+    const end = new Date(`${promo.endDate}T23:59:59`);
+    if (now > end) return { active: false, reason: 'Expirada' };
+  }
+
+  if (promo.startTime && promo.endTime) {
+    const currentMins = now.getHours() * 60 + now.getMinutes();
+    const [sh, sm] = promo.startTime.split(':').map(Number);
+    const [eh, em] = promo.endTime.split(':').map(Number);
+    const startMins = sh * 60 + (sm || 0);
+    const endMins = eh * 60 + (em || 0);
+
+    if (startMins <= endMins) {
+      if (currentMins < startMins || currentMins > endMins) {
+        return { active: false, reason: `Fuera de horario (${promo.startTime} - ${promo.endTime})` };
+      }
+    } else {
+      if (currentMins < startMins && currentMins > endMins) {
+        return { active: false, reason: `Fuera de horario (${promo.startTime} - ${promo.endTime})` };
+      }
+    }
+  }
+
+  return { active: true, reason: 'Activa ahora' };
+}
+
+export function isPromotionActive(promo, now = new Date()) {
+  return checkPromotionStatus(promo, now).active;
+}
 
 export const PAYMENT_STATUSES = {
   PENDING: { id: 'PENDING', label: 'Pendiente de Pago', color: 'bg-amber-100 text-amber-800 border-amber-300' },
@@ -22,6 +60,12 @@ export function RestaurantProvider({ children }) {
   const [products, setProducts] = useState(() => {
     const saved = localStorage.getItem('saas_products');
     return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+  });
+
+  // Load promotions from localStorage or fallback
+  const [promotions, setPromotions] = useState(() => {
+    const saved = localStorage.getItem('saas_promotions');
+    return saved ? JSON.parse(saved) : INITIAL_PROMOTIONS;
   });
 
   // Load categories from localStorage or fallback
@@ -56,6 +100,10 @@ export function RestaurantProvider({ children }) {
   }, [products]);
 
   useEffect(() => {
+    localStorage.setItem('saas_promotions', JSON.stringify(promotions));
+  }, [promotions]);
+
+  useEffect(() => {
     localStorage.setItem('saas_categories', JSON.stringify(categories));
   }, [categories]);
 
@@ -66,6 +114,47 @@ export function RestaurantProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('saas_cart', JSON.stringify(cart));
   }, [cart]);
+
+  // Promotions CRUD & Helpers
+  const addPromotion = (newPromo) => {
+    const id = `promo-${Date.now()}`;
+    const promo = {
+      ...newPromo,
+      id,
+      createdAt: new Date().toISOString(),
+    };
+    setPromotions((prev) => [promo, ...prev]);
+    return promo;
+  };
+
+  const updatePromotion = (id, updatedFields) => {
+    setPromotions((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, ...updatedFields } : p))
+    );
+  };
+
+  const deletePromotion = (id) => {
+    setPromotions((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const togglePromotionActive = (id) => {
+    setPromotions((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, isActive: !p.isActive } : p))
+    );
+  };
+
+  const getActivePromotionForProduct = (productId) => {
+    return promotions.find((p) => p.productId === productId && isPromotionActive(p));
+  };
+
+  const getProductEffectivePrice = (product) => {
+    if (!product) return 0;
+    const promo = getActivePromotionForProduct(product.id);
+    if (promo && typeof promo.promoPrice === 'number' && promo.promoPrice > 0) {
+      return promo.promoPrice;
+    }
+    return product.price;
+  };
 
   // Product CRUD
   const addProduct = (newProduct) => {
@@ -176,7 +265,7 @@ export function RestaurantProvider({ children }) {
 
   // Cart calculations
   const cartSubtotal = cart.reduce((sum, item) => {
-    const itemPrice = item.product.isPromo && item.product.promoPrice ? item.product.promoPrice : item.product.price;
+    const itemPrice = getProductEffectivePrice(item.product);
     return sum + itemPrice * item.quantity;
   }, 0);
 
@@ -219,7 +308,7 @@ export function RestaurantProvider({ children }) {
       items: cart.map((item) => ({
         productId: item.product.id,
         name: item.product.name,
-        price: item.product.isPromo && item.product.promoPrice ? item.product.promoPrice : item.product.price,
+        price: getProductEffectivePrice(item.product),
         quantity: item.quantity,
         notes: item.notes,
         imageUrl: item.product.imageUrl || null,
@@ -272,6 +361,7 @@ export function RestaurantProvider({ children }) {
     <RestaurantContext.Provider
       value={{
         products,
+        promotions,
         categories,
         orders,
         cart,
@@ -296,6 +386,12 @@ export function RestaurantProvider({ children }) {
         addProduct,
         updateProduct,
         deleteProduct,
+        addPromotion,
+        updatePromotion,
+        deletePromotion,
+        togglePromotionActive,
+        getActivePromotionForProduct,
+        getProductEffectivePrice,
         addCategory,
         updateCategory,
         deleteCategory,

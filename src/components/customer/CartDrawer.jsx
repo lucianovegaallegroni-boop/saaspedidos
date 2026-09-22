@@ -15,14 +15,18 @@ export default function CartDrawer({ onOpenCheckout }) {
     updateCartQuantity,
     removeFromCart,
     clearCart,
+    getProductEffectivePrice,
   } = useRestaurant();
 
   if (!isCartOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-end animate-in fade-in duration-200">
+    <div 
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-end animate-in fade-in duration-200 cursor-pointer"
+      onClick={() => setIsCartOpen(false)}
+    >
       <div 
-        className="bg-white w-full max-w-md h-full shadow-2xl flex flex-col justify-between"
+        className="bg-white w-full max-w-md h-full shadow-2xl flex flex-col justify-between cursor-default"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Drawer Header */}
@@ -83,7 +87,7 @@ export default function CartDrawer({ onOpenCheckout }) {
               {/* Cart Items List */}
               <div className="space-y-2.5">
                 {cart.map(({ product, quantity, notes }) => {
-                  const effectivePrice = product.isPromo && product.promoPrice ? product.promoPrice : product.price;
+                  const effectivePrice = getProductEffectivePrice ? getProductEffectivePrice(product) : product.price;
                   const itemTotal = effectivePrice * quantity;
                   const isStockLimitReached = quantity >= product.stock;
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Search, Clock, Star, MapPin, Bike, ShoppingBag, UtensilsCrossed, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Search, Clock, MapPin, Bike, ShoppingBag, UtensilsCrossed, X, ShieldCheck } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 
 export default function MobileHeader() {
@@ -29,12 +30,16 @@ export default function MobileHeader() {
             </p>
           </div>
 
-          <div className="flex flex-col items-end shrink-0">
-            <div className="flex items-center gap-1 bg-black/20 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10 text-xs font-bold text-amber-200">
-              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-              <span>4.9</span>
-              <span className="text-[10px] text-white/70 font-normal">(1.4k+)</span>
-            </div>
+          {/* Botón de acceso al panel / cocina en la esquina superior derecha */}
+          <div className="shrink-0">
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/25 hover:bg-black/40 text-white border border-white/20 text-xs font-bold shadow-sm backdrop-blur-md transition-all active:scale-95"
+              title="Acceso Personal, Cocina & Administración"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-300" />
+              <span className="hidden xs:inline sm:inline">Acceso Personal</span>
+            </Link>
           </div>
         </div>
 

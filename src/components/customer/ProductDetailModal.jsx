@@ -3,13 +3,15 @@ import { X, Plus, Minus, Check, AlertTriangle } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 
 export default function ProductDetailModal({ product, onClose }) {
-  const { addToCart, cart } = useRestaurant();
+  const { addToCart, cart, getActivePromotionForProduct, getProductEffectivePrice } = useRestaurant();
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
 
   if (!product) return null;
 
-  const effectivePrice = product.isPromo && product.promoPrice ? product.promoPrice : product.price;
+  const activePromo = getActivePromotionForProduct ? getActivePromotionForProduct(product.id) : null;
+  const effectivePrice = getProductEffectivePrice ? getProductEffectivePrice(product) : product.price;
+  const hasPromo = Boolean(activePromo);
   const isOutOfStock = product.stock <= 0;
   const inCart = cart.find((item) => item.product.id === product.id);
 
@@ -19,9 +21,12 @@ export default function ProductDetailModal({ product, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+    <div 
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200 cursor-pointer"
+      onClick={onClose}
+    >
       <div 
-        className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+        className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col cursor-default"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Image */}
@@ -37,9 +42,9 @@ export default function ProductDetailModal({ product, onClose }) {
           >
             <X className="w-5 h-5" />
           </button>
-          {product.isPromo && (
+          {hasPromo && (
             <span className="absolute bottom-3 left-3 bg-rose-600 text-white text-xs font-black uppercase px-2.5 py-1 rounded-md shadow-md">
-              {product.promoLabel || 'OFERTA DESTACADA'}
+              {activePromo.promoLabel || 'OFERTA DESTACADA'}
             </span>
           )}
         </div>
@@ -55,7 +60,7 @@ export default function ProductDetailModal({ product, onClose }) {
                 <span className="text-lg font-black text-slate-900">
                   ${effectivePrice.toFixed(2)}
                 </span>
-                {product.isPromo && (
+                {hasPromo && (
                   <span className="text-xs text-slate-400 line-through">
                     ${product.price.toFixed(2)}
                   </span>

@@ -111,9 +111,9 @@ export default function ProductInventoryManager() {
           </div>
 
           <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs">
-            <p className="text-xs text-slate-500 font-medium">En Oferta Activa</p>
-            <h3 className="text-xl font-black text-rose-600 mt-1 m-0">
-              {products.filter((p) => p.isPromo).length}
+            <p className="text-xs text-slate-500 font-medium">Categorías</p>
+            <h3 className="text-xl font-black text-indigo-600 mt-1 m-0">
+              {categories.filter((c) => c.id !== 'cat-all').length}
             </h3>
           </div>
 
@@ -167,7 +167,6 @@ export default function ProductInventoryManager() {
                   <th className="p-3">Costo Insumo</th>
                   <th className="p-3">Margen Ganancia</th>
                   <th className="p-3">Inventario / Stock</th>
-                  <th className="p-3">Promoción</th>
                   <th className="p-3 pr-4 text-right">Acciones</th>
                 </tr>
               </thead>
@@ -241,19 +240,6 @@ export default function ProductInventoryManager() {
                             </span>
                           )}
                         </div>
-                      </td>
-
-                      {/* Promotion */}
-                      <td className="p-3">
-                        {p.isPromo ? (
-                          <div className="space-y-0.5">
-                            <span className="inline-block bg-rose-100 text-rose-800 text-[10px] font-extrabold px-2 py-0.5 rounded-md border border-rose-200">
-                              {p.promoLabel || 'Promo'} (${p.promoPrice?.toFixed(2)})
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-slate-400 text-[11px]">—</span>
-                        )}
                       </td>
 
                       {/* Actions */}
