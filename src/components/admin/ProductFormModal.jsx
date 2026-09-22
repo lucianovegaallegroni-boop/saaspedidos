@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { X, DollarSign, TrendingUp, AlertTriangle, Sparkles, Plus, Check } from 'lucide-react';
+import {
+  X,
+  DollarSign,
+  TrendingUp,
+  AlertTriangle,
+  Sparkles,
+  Plus,
+  Check,
+  Upload,
+  Camera,
+  Trash2,
+  Image as ImageIcon
+} from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 
 export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
@@ -12,7 +24,9 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
   const [cost, setCost] = useState('');
   const [stock, setStock] = useState('');
   const [minStockAlert, setMinStockAlert] = useState('5');
-  const [imageUrl, setImageUrl] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
+  const [imageFileName, setImageFileName] = useState('');
+  const [uploadError, setUploadError] = useState('');
   const [isPromo, setIsPromo] = useState(false);
   const [promoPrice, setPromoPrice] = useState('');
   const [promoLabel, setPromoLabel] = useState('20% OFF');
@@ -26,7 +40,9 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
       setCost(productToEdit.cost.toString());
       setStock(productToEdit.stock.toString());
       setMinStockAlert(productToEdit.minStockAlert.toString());
-      setImageUrl(productToEdit.imageUrl);
+      setImagePreview(productToEdit.imageUrl || '');
+      setImageFileName('');
+      setUploadError('');
       setIsPromo(Boolean(productToEdit.isPromo));
       setPromoPrice(productToEdit.promoPrice ? productToEdit.promoPrice.toString() : '');
       setPromoLabel(productToEdit.promoLabel || '20% OFF');
@@ -38,7 +54,9 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
       setCost('3.50');
       setStock('20');
       setMinStockAlert('5');
-      setImageUrl('https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=600&q=80');
+      setImagePreview('https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=600&q=80');
+      setImageFileName('');
+      setUploadError('');
       setIsPromo(false);
       setPromoPrice('');
       setPromoLabel('20% OFF');
@@ -62,6 +80,30 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
     return 'bg-rose-100 text-rose-800 border-rose-300';
   };
 
+  const handleImageFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 8 * 1024 * 1024) {
+        setUploadError('La imagen supera el límite de 8 MB. Selecciona una más ligera.');
+        return;
+      }
+      setImageFileName(file.name);
+      setUploadError('');
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview('');
+    setImageFileName('');
+    setUploadError('');
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!name.trim() || numPrice <= 0) return;
@@ -74,7 +116,7 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
       cost: numCost,
       stock: parseInt(stock, 10) || 0,
       minStockAlert: parseInt(minStockAlert, 10) || 5,
-      imageUrl: imageUrl.trim() || 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=600&q=80',
+      imageUrl: imagePreview || 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=600&q=80',
       isPromo,
       promoPrice: isPromo && numPromoPrice > 0 ? numPromoPrice : null,
       promoLabel: isPromo ? promoLabel : null,
@@ -105,7 +147,7 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-full text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-full text-slate-300 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -115,7 +157,7 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
           {/* General Fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="sm:col-span-2">
+            <div>
               <label className="text-xs font-bold text-slate-700 block mb-1">Nombre del Producto *</label>
               <input
                 type="text"
@@ -142,15 +184,83 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
               </select>
             </div>
 
-            <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">URL Imagen</label>
-              <input
-                type="url"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://..."
-                className="w-full text-xs sm:text-sm p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
-              />
+            {/* Image Upload Area */}
+            <div className="sm:col-span-2 space-y-1.5">
+              <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                <span>Foto del Producto</span>
+                {imagePreview && (
+                  <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                    <Check className="w-3 h-3" /> Imagen seleccionada
+                  </span>
+                )}
+              </label>
+
+              {imagePreview ? (
+                <div className="relative border border-slate-200 rounded-2xl overflow-hidden bg-slate-900 group shadow-inner">
+                  <img
+                    src={imagePreview}
+                    alt="Vista previa del producto"
+                    className="w-full h-44 sm:h-52 object-cover object-center group-hover:opacity-95 transition-opacity"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
+
+                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                    <label
+                      htmlFor="product-image-file"
+                      className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/95 hover:bg-white text-slate-900 text-xs font-bold shadow-md transition-all active:scale-95"
+                    >
+                      <Camera className="w-3.5 h-3.5 text-amber-600" />
+                      <span>{imageFileName ? 'Cambiar Foto' : 'Subir otra foto'}</span>
+                    </label>
+
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Quitar Foto</span>
+                    </button>
+                  </div>
+
+                  <input
+                    id="product-image-file"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageFileChange}
+                    className="hidden"
+                  />
+                </div>
+              ) : (
+                <label
+                  htmlFor="product-image-file"
+                  className="border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer bg-slate-50/80 hover:bg-amber-50/40 transition-all group"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 group-hover:border-amber-400 group-hover:scale-105 flex items-center justify-center text-slate-500 group-hover:text-amber-600 shadow-xs transition-all mb-2">
+                    <Upload className="w-6 h-6" />
+                  </div>
+                  <p className="text-xs font-bold text-slate-800 group-hover:text-amber-600">
+                    Toca aquí para seleccionar una imagen desde tu dispositivo
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Formatos JPG, PNG, WEBP hasta 8 MB
+                  </p>
+                  <input
+                    id="product-image-file"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageFileChange}
+                    className="hidden"
+                  />
+                </label>
+              )}
+
+              {uploadError && (
+                <p className="text-xs text-rose-600 font-medium flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3" />
+                  <span>{uploadError}</span>
+                </p>
+              )}
             </div>
 
             <div className="sm:col-span-2">
@@ -295,7 +405,7 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white font-bold py-3.5 px-4 rounded-xl shadow-md text-xs sm:text-sm flex items-center justify-center gap-2 transition-all"
+              className="w-full bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white font-bold py-3.5 px-4 rounded-xl shadow-md text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               <Check className="w-4 h-4 text-amber-400" />
               <span>{productToEdit ? 'Guardar Cambios' : 'Crear Producto'}</span>
