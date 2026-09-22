@@ -24,7 +24,11 @@ export function RestaurantProvider({ children }) {
     return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
   });
 
-  const [categories] = useState(INITIAL_CATEGORIES);
+  // Load categories from localStorage or fallback
+  const [categories, setCategories] = useState(() => {
+    const saved = localStorage.getItem('saas_categories');
+    return saved ? JSON.parse(saved) : INITIAL_CATEGORIES;
+  });
 
   // Load orders from localStorage or fallback
   const [orders, setOrders] = useState(() => {
@@ -52,6 +56,10 @@ export function RestaurantProvider({ children }) {
   }, [products]);
 
   useEffect(() => {
+    localStorage.setItem('saas_categories', JSON.stringify(categories));
+  }, [categories]);
+
+  useEffect(() => {
     localStorage.setItem('saas_orders', JSON.stringify(orders));
   }, [orders]);
 
@@ -77,6 +85,36 @@ export function RestaurantProvider({ children }) {
     setProducts((prev) => prev.filter((p) => p.id !== id));
     // Remove from cart if present
     setCart((prev) => prev.filter((item) => item.product.id !== id));
+  };
+
+  // Category CRUD
+  const addCategory = ({ name, icon = 'Sparkles' }) => {
+    const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const id = `cat-${slug || Date.now()}`;
+    const newCategory = { id, name: name.trim(), icon };
+    setCategories((prev) => [...prev, newCategory]);
+    return newCategory;
+  };
+
+  const updateCategory = (id, { name, icon }) => {
+    setCategories((prev) =>
+      prev.map((c) =>
+        c.id === id ? { ...c, name: name.trim(), ...(icon ? { icon } : {}) } : c
+      )
+    );
+  };
+
+  const deleteCategory = (id) => {
+    if (id === 'cat-all') return false;
+    setCategories((prev) => prev.filter((c) => c.id !== id));
+    if (activeCategory === id) {
+      setActiveCategory('cat-all');
+    }
+    return true;
+  };
+
+  const resetCategories = () => {
+    setCategories(INITIAL_CATEGORIES);
   };
 
   // Quick stock adjustment
@@ -253,6 +291,10 @@ export function RestaurantProvider({ children }) {
         addProduct,
         updateProduct,
         deleteProduct,
+        addCategory,
+        updateCategory,
+        deleteCategory,
+        resetCategories,
         updateStock,
         addToCart,
         updateCartQuantity,

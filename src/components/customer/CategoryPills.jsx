@@ -1,15 +1,6 @@
 import React from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
-import { Sparkles, Flame, Pizza, Tag, Coffee, Cake } from 'lucide-react';
-
-const ICON_MAP = {
-  Sparkles,
-  Flame,
-  Pizza,
-  Tag,
-  Coffee,
-  Cake,
-};
+import { getCategoryIcon } from '../../utils/categoryIcons';
 
 export default function CategoryPills() {
   const { categories, activeCategory, setActiveCategory, products } = useRestaurant();
@@ -24,7 +15,7 @@ export default function CategoryPills() {
     <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-200 py-2.5 px-3 overflow-x-auto no-scrollbar shadow-xs">
       <div className="flex items-center gap-2 min-w-max">
         {categories.map((cat) => {
-          const Icon = ICON_MAP[cat.icon] || Sparkles;
+          const Icon = getCategoryIcon(cat.icon);
           const isActive = activeCategory === cat.id;
           const count = getCategoryCount(cat.id);
 

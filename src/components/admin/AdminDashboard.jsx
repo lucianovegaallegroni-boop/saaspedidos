@@ -200,6 +200,9 @@ export default function AdminDashboard() {
 
               <div className="pt-2 flex flex-wrap gap-2 text-xs text-slate-400">
                 <span className="px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700">
+                  Categorías & Menú
+                </span>
+                <span className="px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700">
                   Control de Stock
                 </span>
                 <span className="px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700">

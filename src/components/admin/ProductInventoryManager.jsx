@@ -11,15 +11,18 @@ import {
   TrendingUp, 
   Package, 
   Minus,
-  CheckCircle2
+  CheckCircle2,
+  Layers
 } from 'lucide-react';
 import ProductFormModal from './ProductFormModal';
+import CategoryManagerModal from './CategoryManagerModal';
 
 export default function ProductInventoryManager() {
   const { products, deleteProduct, updateStock, calculateMargin, categories } = useRestaurant();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
 
   const filteredProducts = products.filter((p) => {
@@ -65,13 +68,23 @@ export default function ProductInventoryManager() {
             </p>
           </div>
 
-          <button
-            onClick={handleOpenCreate}
-            className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 px-4 py-2 rounded-xl text-xs font-black shadow-md transition-all"
-          >
-            <Plus className="w-4 h-4 stroke-[3]" />
-            <span>Nuevo Producto</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsCategoryModalOpen(true)}
+              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 border border-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer"
+            >
+              <Layers className="w-4 h-4 text-amber-400" />
+              <span>Editar Categorías</span>
+            </button>
+
+            <button
+              onClick={handleOpenCreate}
+              className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 px-4 py-2 rounded-xl text-xs font-black shadow-md transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>Nuevo Producto</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -280,6 +293,12 @@ export default function ProductInventoryManager() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         productToEdit={editingProduct}
+      />
+
+      {/* Category Manager Modal */}
+      <CategoryManagerModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
       />
     </div>
   );
