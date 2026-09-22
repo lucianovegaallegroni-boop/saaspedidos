@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChefHat, Package, Flame, ArrowLeft, LayoutDashboard, Sparkles, LogOut, User } from 'lucide-react';
+import { ChefHat, Package, Flame, ArrowLeft, LayoutDashboard, Sparkles, LogOut, User, DollarSign, Palette } from 'lucide-react';
 import { useRestaurant, isPromotionActive } from '../../context/RestaurantContext';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminNavbar() {
   const location = useLocation();
-  const { orders, products, promotions = [] } = useRestaurant();
+  const { orders, products, promotions = [], branding } = useRestaurant();
   const { currentUser, canAccessPath, getDefaultLandingPath, logout } = useAuth();
 
   const activeKitchenOrders = orders.filter(
@@ -21,16 +21,35 @@ export default function AdminNavbar() {
 
   return (
     <header className="sticky top-0 z-40 bg-slate-900 border-b border-slate-800 text-white px-4 py-2.5 shadow-md">
-      <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 sm:gap-4">
         {/* Brand */}
-        <Link to={homePath} className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center shadow-md">
-            <Flame className="w-5 h-5 text-white" />
-          </div>
+        <Link to={homePath} className="flex items-center gap-3 hover:opacity-90 transition-opacity shrink-0">
+          {branding?.logoUrl ? (
+            <img
+              src={branding.logoUrl}
+              alt={branding.restaurantName}
+              className="w-9 h-9 rounded-xl object-cover shadow-md border border-slate-700 bg-white/5"
+            />
+          ) : (
+            <div
+              style={{
+                background: `linear-gradient(135deg, ${branding?.headerGradientFrom || '#f59e0b'} 0%, ${branding?.headerGradientTo || '#e11d48'} 100%)`
+              }}
+              className="w-9 h-9 rounded-xl flex items-center justify-center shadow-md"
+            >
+              <Flame className="w-5 h-5 text-white" />
+            </div>
+          )}
           <div>
             <div className="flex items-center gap-2">
               <span className="font-extrabold text-base tracking-tight bg-gradient-to-r from-amber-400 to-orange-300 bg-clip-text text-transparent">
-                saasPedidos
+                {branding?.restaurantName ? (
+                  branding.restaurantName.length > 20
+                    ? `${branding.restaurantName.slice(0, 18)}...`
+                    : branding.restaurantName
+                ) : (
+                  'saasPedidos'
+                )}
               </span>
               <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                 PANEL INTERNO
@@ -40,8 +59,10 @@ export default function AdminNavbar() {
           </div>
         </Link>
 
-        {/* Admin Navigation Pills filtered by role permissions */}
-        <nav className="flex items-center gap-1.5 bg-slate-800 p-1 rounded-xl border border-slate-700">
+        {/* Admin Navigation Pills: centered in header and responsive */}
+        {currentUser?.role !== 'KITCHEN' && (
+          <div className="order-3 lg:order-2 w-full lg:w-auto flex justify-center items-center overflow-x-auto no-scrollbar py-1 lg:py-0">
+            <nav className="flex items-center gap-1.5 bg-slate-800/90 p-1 rounded-xl border border-slate-700 shadow-inner">
           {canAccessPath('/admin') && (
             <Link
               to="/admin"
@@ -112,10 +133,40 @@ export default function AdminNavbar() {
               )}
             </Link>
           )}
-        </nav>
 
-        {/* User Session & Return to Public Menu */}
-        <div className="flex items-center gap-2">
+          {canAccessPath('/admin/contabilidad') && (
+            <Link
+              to="/admin/contabilidad"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                location.pathname === '/admin/contabilidad'
+                  ? 'bg-amber-500 text-slate-950 shadow-sm'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-700/60'
+              }`}
+            >
+              <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Contabilidad</span>
+            </Link>
+          )}
+
+          {canAccessPath('/admin/configuracion') && (
+            <Link
+              to="/admin/configuracion"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                location.pathname === '/admin/configuracion'
+                  ? 'bg-amber-500 text-slate-950 shadow-sm'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-700/60'
+              }`}
+            >
+              <Palette className="w-3.5 h-3.5 text-pink-400" />
+              <span>Personalización & Marca</span>
+            </Link>
+          )}
+            </nav>
+          </div>
+        )}
+
+        {/* User Session & Return to Public Menu: aligned right and centered vertically */}
+        <div className="order-2 lg:order-3 flex items-center gap-2 shrink-0">
           {currentUser && (
             <div className="flex items-center gap-2 bg-slate-800/80 px-2.5 py-1 rounded-xl border border-slate-700">
               <div className="flex items-center gap-1.5">

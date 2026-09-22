@@ -11,7 +11,7 @@ import {
 import { useRestaurant } from '../../context/RestaurantContext';
 
 export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
-  const { categories, addProduct, updateProduct, calculateMargin } = useRestaurant();
+  const { categories, addProduct, updateProduct } = useRestaurant();
 
   const [name, setName] = useState('');
   const [categoryId, setCategoryId] = useState('cat-burgers');
@@ -54,16 +54,6 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
 
   const numPrice = parseFloat(price) || 0;
   const numCost = parseFloat(cost) || 0;
-
-  // Real-time calculations
-  const marginPercent = calculateMargin(numPrice, numCost);
-  const netProfit = numPrice - numCost;
-
-  const getMarginBadge = (margin) => {
-    if (margin >= 60) return 'bg-emerald-100 text-emerald-800 border-emerald-300';
-    if (margin >= 35) return 'bg-amber-100 text-amber-800 border-amber-300';
-    return 'bg-rose-100 text-rose-800 border-rose-300';
-  };
 
   const handleImageFileChange = (e) => {
     const file = e.target.files?.[0];
@@ -128,7 +118,7 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
             <h2 className="text-base font-black text-white m-0">
               {productToEdit ? 'Editar Producto & Costos' : 'Crear Nuevo Producto'}
             </h2>
-            <p className="text-xs text-slate-400">Catálogo, Inventario y Margen de Ganancia</p>
+            <p className="text-xs text-slate-400">Catálogo, Precios e Inventario</p>
           </div>
           <button
             onClick={onClose}
@@ -260,14 +250,14 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
             </div>
           </div>
 
-          {/* Pricing, Cost & Margin Live Calculator */}
+          {/* Pricing & Cost */}
           <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
             <div className="flex items-center gap-1.5 text-xs font-black text-slate-900">
               <TrendingUp className="w-4 h-4 text-emerald-600" />
-              <span>Finanzas: Precios, Costo & Margen en Tiempo Real</span>
+              <span>Finanzas: Precios & Costo de Insumo</span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-[11px] font-bold text-slate-600 block mb-1">
                   Precio de Venta ($) *
@@ -294,15 +284,6 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit }) {
                   onChange={(e) => setCost(e.target.value)}
                   className="w-full text-xs sm:text-sm p-2.5 border border-slate-200 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
                 />
-              </div>
-
-              <div className="col-span-2 sm:col-span-1 flex flex-col justify-end">
-                <div className={`p-2.5 rounded-xl border text-center ${getMarginBadge(marginPercent)}`}>
-                  <p className="text-[10px] uppercase font-black">Margen Estimado</p>
-                  <p className="text-base font-black">
-                    {marginPercent}% (${netProfit.toFixed(2)})
-                  </p>
-                </div>
               </div>
             </div>
           </div>

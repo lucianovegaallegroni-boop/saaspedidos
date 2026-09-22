@@ -330,3 +330,17 @@ export const INITIAL_ORDERS = [
   },
 ];
 
+export const INITIAL_BRANDING = {
+  restaurantName: 'Burger & Pizza Craft Co.',
+  restaurantTagline: 'Hamburguesas smash artesanales, pizzas napolitanas & coctelería',
+  logoUrl: '',
+  logoIcon: 'Flame', // 'Flame' | 'ChefHat' | 'Utensils' | 'Pizza' | 'Coffee' | 'Sparkles' | 'Store'
+  fontFamily: 'system', // 'system' | 'inter' | 'poppins' | 'montserrat' | 'playfair' | 'raleway'
+  primaryColor: '#f59e0b', // Amber-500
+  secondaryColor: '#e11d48', // Rose-600
+  accentColor: '#10b981', // Emerald-500
+  headerGradientFrom: '#d97706', // Amber-600
+  headerGradientTo: '#b91c1c', // Red-700
+  bannerStyle: 'gradient', // 'gradient' | 'solid' | 'minimal'
+};
+

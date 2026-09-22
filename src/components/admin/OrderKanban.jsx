@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useRestaurant, PAYMENT_STATUSES, OPERATIONAL_STATUSES } from '../../context/RestaurantContext';
+import { useAuth } from '../../context/AuthContext';
 import AdminNavbar from './AdminNavbar';
 import { 
   ChefHat, 
@@ -290,6 +291,7 @@ function OrderCard({
 
 export default function OrderKanban() {
   const { orders, updateOrderPaymentStatus, updateOrderOperationalStatus } = useRestaurant();
+  const { currentUser } = useAuth();
   const [selectedColumn, setSelectedColumn] = useState('ALL'); // Operational status filter
   const [paymentTypeFilter, setPaymentTypeFilter] = useState('ALL'); // 'ALL' | 'YAPPY_TRANSFER' | 'PAY_IN_STORE'
   const [sortOrder, setSortOrder] = useState('NEWEST'); // 'NEWEST' | 'OLDEST' | 'YAPPY_FIRST' | 'STORE_FIRST'
@@ -513,34 +515,36 @@ export default function OrderKanban() {
                 </select>
               </div>
 
-              {/* Layout Switcher */}
-              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                <button
-                  onClick={() => setViewLayout('GRID')}
-                  title="Todos juntos en cuadrícula"
-                  className={`p-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                    viewLayout === 'GRID'
-                      ? 'bg-white text-slate-900 shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <LayoutGrid className="w-4 h-4 text-amber-500" />
-                  <span className="hidden md:inline">Todos Juntos</span>
-                </button>
+              {/* Layout Switcher (hidden for kitchen role) */}
+              {currentUser?.role !== 'KITCHEN' && (
+                <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                  <button
+                    onClick={() => setViewLayout('GRID')}
+                    title="Todos juntos en cuadrícula"
+                    className={`p-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                      viewLayout === 'GRID'
+                        ? 'bg-white text-slate-900 shadow-2xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <LayoutGrid className="w-4 h-4 text-amber-500" />
+                    <span className="hidden md:inline">Todos Juntos</span>
+                  </button>
 
-                <button
-                  onClick={() => setViewLayout('SPLIT_COLUMNS')}
-                  title="Separar en columnas por tipo de pago"
-                  className={`p-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                    viewLayout === 'SPLIT_COLUMNS'
-                      ? 'bg-white text-slate-900 shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Columns3 className="w-4 h-4 text-slate-600" />
-                  <span className="hidden md:inline">Dividir por Tipo</span>
-                </button>
-              </div>
+                  <button
+                    onClick={() => setViewLayout('SPLIT_COLUMNS')}
+                    title="Separar en columnas por tipo de pago"
+                    className={`p-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                      viewLayout === 'SPLIT_COLUMNS'
+                        ? 'bg-white text-slate-900 shadow-2xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <Columns3 className="w-4 h-4 text-slate-600" />
+                    <span className="hidden md:inline">Dividir por Tipo</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 

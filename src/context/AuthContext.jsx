@@ -11,7 +11,7 @@ export const SYSTEM_USERS = [
     role: 'ADMIN',
     roleLabel: 'Administrador (Todo el Sistema)',
     defaultLandingPath: '/admin',
-    allowedPaths: ['/admin', '/admin/cocina', '/admin/inventario', '/admin/promociones'],
+    allowedPaths: ['/admin', '/admin/cocina', '/admin/inventario', '/admin/promociones', '/admin/contabilidad', '/admin/configuracion'],
     badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/30'
   },
   {
@@ -29,9 +29,9 @@ export const SYSTEM_USERS = [
     password: '123',
     name: 'Gerente de Tienda',
     role: 'MANAGER',
-    roleLabel: 'Gerente (Catálogo & Promociones)',
+    roleLabel: 'Gerente (Catálogo, Promos & Marca)',
     defaultLandingPath: '/admin/inventario',
-    allowedPaths: ['/admin/inventario', '/admin/promociones'],
+    allowedPaths: ['/admin/inventario', '/admin/promociones', '/admin/configuracion'],
     badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
   }
 ];

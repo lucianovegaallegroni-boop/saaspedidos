@@ -4,30 +4,50 @@ import { Search, Clock, MapPin, Bike, ShoppingBag, UtensilsCrossed, X, ShieldChe
 import { useRestaurant } from '../../context/RestaurantContext';
 
 export default function MobileHeader() {
-  const { searchQuery, setSearchQuery } = useRestaurant();
+  const { searchQuery, setSearchQuery, branding } = useRestaurant();
   const [deliveryMode, setDeliveryMode] = useState('DELIVERY');
+
+  const gradientStyle = {
+    background: branding?.bannerStyle === 'solid'
+      ? branding?.primaryColor || '#d97706'
+      : `linear-gradient(135deg, ${branding?.headerGradientFrom || '#d97706'} 0%, ${branding?.headerGradientTo || '#b91c1c'} 100%)`
+  };
 
   return (
     <div className="bg-white border-b border-slate-200">
       {/* Restaurant Hero Banner */}
-      <div className="relative bg-gradient-to-r from-amber-600 via-rose-600 to-amber-700 text-white p-4 pt-5 pb-6">
+      <div
+        style={gradientStyle}
+        className="relative text-white p-4 pt-5 pb-6 transition-all duration-300"
+      >
         <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="bg-emerald-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-                Abierto Ahora
-              </span>
-              <span className="text-xs text-amber-100 flex items-center gap-1">
-                <Clock className="w-3 h-3" /> 20 - 35 min
-              </span>
+          <div className="flex items-start gap-3">
+            {/* Logo de la Marca si existe o icono configurable */}
+            {branding?.logoUrl ? (
+              <img
+                src={branding.logoUrl}
+                alt={branding.restaurantName}
+                className="w-12 h-12 rounded-2xl object-cover border-2 border-white/30 shadow-md bg-white/10 shrink-0"
+              />
+            ) : null}
+
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="bg-emerald-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                  Abierto Ahora
+                </span>
+                <span className="text-xs text-white/90 flex items-center gap-1 font-medium">
+                  <Clock className="w-3 h-3" /> 20 - 35 min
+                </span>
+              </div>
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white m-0">
+                {branding?.restaurantName || 'Burger & Pizza Craft Co.'}
+              </h1>
+              <p className="text-xs text-white/80 line-clamp-1">
+                {branding?.restaurantTagline || 'Hamburguesas smash artesanales, pizzas napolitanas & coctelería'}
+              </p>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white m-0">
-              Burger & Pizza Craft Co.
-            </h1>
-            <p className="text-xs text-amber-100 line-clamp-1">
-              Hamburguesas smash artesanales, pizzas napolitanas & coctelería
-            </p>
           </div>
 
           {/* Botón de acceso al panel / cocina en la esquina superior derecha */}

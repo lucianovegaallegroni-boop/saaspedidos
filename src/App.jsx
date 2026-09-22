@@ -15,6 +15,8 @@ import OrderKanban from './components/admin/OrderKanban';
 import ProductInventoryManager from './components/admin/ProductInventoryManager';
 import PromotionManager from './components/admin/PromotionManager';
 import AdminDashboard from './components/admin/AdminDashboard';
+import AccountingView from './components/admin/AccountingView';
+import StoreCustomizerView from './components/admin/StoreCustomizerView';
 import AdminLogin from './components/admin/AdminLogin';
 import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute';
 import { Clock, MapPin, Compass } from 'lucide-react';
@@ -168,6 +170,22 @@ export default function App() {
               element={
                 <ProtectedAdminRoute requiredPath="/admin/promociones">
                   <PromotionManager />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/admin/contabilidad"
+              element={
+                <ProtectedAdminRoute requiredPath="/admin/contabilidad">
+                  <AccountingView />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/admin/configuracion"
+              element={
+                <ProtectedAdminRoute requiredPath="/admin/configuracion">
+                  <StoreCustomizerView />
                 </ProtectedAdminRoute>
               }
             />

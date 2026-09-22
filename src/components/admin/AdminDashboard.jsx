@@ -14,7 +14,8 @@ import {
   DollarSign,
   Store,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  Palette
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -208,7 +209,7 @@ export default function AdminDashboard() {
                     Catálogo & Stock
                   </h2>
                   <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                    Administra platos, bebidas y categorías sin mezclar ofertas. Control de stock en tiempo real, alertas de reposición y margen de ganancia.
+                    Administra platos, bebidas y categorías sin mezclar ofertas. Control de stock en tiempo real, alertas de reposición y precios.
                   </p>
                 </div>
 
@@ -217,7 +218,7 @@ export default function AdminDashboard() {
                     Control de Stock
                   </span>
                   <span className="px-2 py-0.5 rounded-lg bg-slate-800/80 border border-slate-700">
-                    Márgenes %
+                    Precios & Categorías
                   </span>
                 </div>
               </div>
@@ -271,6 +272,104 @@ export default function AdminDashboard() {
               <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-rose-400 font-bold text-xs sm:text-sm">
                 <span>Gestionar Promociones</span>
                 <div className="w-7 h-7 rounded-full bg-rose-500/10 group-hover:bg-rose-500 group-hover:text-slate-950 flex items-center justify-center transition-all">
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </div>
+            </Link>
+          )}
+
+          {/* Card 4: Contabilidad & Finanzas (Admin) */}
+          {canAccessPath('/admin/contabilidad') && (
+            <Link
+              to="/admin/contabilidad"
+              className="group relative bg-gradient-to-b from-slate-900 to-slate-900/80 border border-slate-800 hover:border-emerald-500/60 rounded-3xl p-6 sm:p-7 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/10 flex flex-col justify-between overflow-hidden"
+            >
+              <div className="absolute -top-12 -right-12 w-44 h-44 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-emerald-500/20 transition-all" />
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-13 h-13 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
+                    <DollarSign className="w-6 h-6" />
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    ${totalRevenue.toFixed(2)} recaudado
+                  </span>
+                </div>
+
+                <div>
+                  <h2 className="text-lg sm:text-xl font-black text-white group-hover:text-emerald-400 transition-colors">
+                    Contabilidad & Finanzas
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                    Cuadro detallado de pedidos efectuados, recaudación financiera, platos solicitados, cobros por Yappy o en local y exportación.
+                  </p>
+                </div>
+
+                <div className="pt-2 flex flex-wrap gap-1.5 text-[11px] text-slate-400">
+                  <span className="px-2 py-0.5 rounded-lg bg-slate-800/80 border border-slate-700">
+                    Cuadro de Pedidos
+                  </span>
+                  <span className="px-2 py-0.5 rounded-lg bg-slate-800/80 border border-slate-700">
+                    Recaudación Total
+                  </span>
+                  <span className="px-2 py-0.5 rounded-lg bg-slate-800/80 border border-slate-700">
+                    Exportar Reporte
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-emerald-400 font-bold text-xs sm:text-sm">
+                <span>Ver Contabilidad</span>
+                <div className="w-7 h-7 rounded-full bg-emerald-500/10 group-hover:bg-emerald-500 group-hover:text-slate-950 flex items-center justify-center transition-all">
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </div>
+            </Link>
+          )}
+
+          {/* Card 5: Personalización & Marca (Admin or Manager) */}
+          {canAccessPath('/admin/configuracion') && (
+            <Link
+              to="/admin/configuracion"
+              className="group relative bg-gradient-to-b from-slate-900 to-slate-900/80 border border-slate-800 hover:border-pink-500/60 rounded-3xl p-6 sm:p-7 transition-all duration-300 hover:shadow-2xl hover:shadow-pink-500/10 flex flex-col justify-between overflow-hidden"
+            >
+              <div className="absolute -top-12 -right-12 w-44 h-44 bg-pink-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-pink-500/20 transition-all" />
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-13 h-13 rounded-2xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-pink-400 group-hover:scale-105 transition-transform">
+                    <Palette className="w-6 h-6" />
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-xs font-black bg-pink-500/20 text-pink-300 border border-pink-500/40">
+                    Marca & Estilo
+                  </span>
+                </div>
+
+                <div>
+                  <h2 className="text-lg sm:text-xl font-black text-white group-hover:text-pink-400 transition-colors">
+                    Personalización & Marca
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                    Personaliza los colores principales, el logo del restaurante, las tipografías y el estilo de la cabecera en tiempo real.
+                  </p>
+                </div>
+
+                <div className="pt-2 flex flex-wrap gap-1.5 text-[11px] text-slate-400">
+                  <span className="px-2 py-0.5 rounded-lg bg-slate-800/80 border border-slate-700">
+                    Logo & Nombre
+                  </span>
+                  <span className="px-2 py-0.5 rounded-lg bg-slate-800/80 border border-slate-700">
+                    Colores & Gradientes
+                  </span>
+                  <span className="px-2 py-0.5 rounded-lg bg-slate-800/80 border border-slate-700">
+                    Tipografía
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-pink-400 font-bold text-xs sm:text-sm">
+                <span>Personalizar Tienda</span>
+                <div className="w-7 h-7 rounded-full bg-pink-500/10 group-hover:bg-pink-500 group-hover:text-slate-950 flex items-center justify-center transition-all">
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>

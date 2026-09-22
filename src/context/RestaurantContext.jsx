@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { INITIAL_CATEGORIES, INITIAL_PRODUCTS, INITIAL_ORDERS, INITIAL_PROMOTIONS } from '../data/mockData';
+import { INITIAL_CATEGORIES, INITIAL_PRODUCTS, INITIAL_ORDERS, INITIAL_PROMOTIONS, INITIAL_BRANDING } from '../data/mockData';
 
 const RestaurantContext = createContext(null);
 
@@ -86,6 +86,16 @@ export function RestaurantProvider({ children }) {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Branding & Configuration (Colors, Logo, Typography, Restaurant Name)
+  const [branding, setBranding] = useState(() => {
+    try {
+      const saved = localStorage.getItem('saas_branding');
+      return saved ? { ...INITIAL_BRANDING, ...JSON.parse(saved) } : INITIAL_BRANDING;
+    } catch {
+      return INITIAL_BRANDING;
+    }
+  });
+
   // View state: 'customer-menu' | 'customer-tracking' | 'admin-kanban' | 'admin-inventory'
   const [activeView, setActiveView] = useState('customer-menu');
   const [currentTrackingOrderId, setCurrentTrackingOrderId] = useState('ORD-1001');
@@ -114,6 +124,39 @@ export function RestaurantProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('saas_cart', JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    localStorage.setItem('saas_branding', JSON.stringify(branding));
+
+    // Dynamic Font Family application
+    const fontMap = {
+      system: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      inter: "'Inter', sans-serif",
+      poppins: "'Poppins', sans-serif",
+      montserrat: "'Montserrat', sans-serif",
+      playfair: "'Playfair Display', serif",
+      raleway: "'Raleway', sans-serif"
+    };
+
+    const targetFont = fontMap[branding.fontFamily] || fontMap.system;
+    document.documentElement.style.setProperty('--app-font-family', targetFont);
+    document.body.style.fontFamily = targetFont;
+
+    // Dynamic CSS colors
+    document.documentElement.style.setProperty('--color-primary', branding.primaryColor || '#f59e0b');
+    document.documentElement.style.setProperty('--color-secondary', branding.secondaryColor || '#e11d48');
+    document.documentElement.style.setProperty('--color-accent', branding.accentColor || '#10b981');
+    document.documentElement.style.setProperty('--gradient-from', branding.headerGradientFrom || '#d97706');
+    document.documentElement.style.setProperty('--gradient-to', branding.headerGradientTo || '#b91c1c');
+  }, [branding]);
+
+  const updateBranding = (updatedFields) => {
+    setBranding((prev) => ({ ...prev, ...updatedFields }));
+  };
+
+  const resetBranding = () => {
+    setBranding(INITIAL_BRANDING);
+  };
 
   // Promotions CRUD & Helpers
   const addPromotion = (newPromo) => {
@@ -382,6 +425,10 @@ export function RestaurantProvider({ children }) {
         setActiveCategory,
         searchQuery,
         setSearchQuery,
+        // Branding & Customization
+        branding,
+        updateBranding,
+        resetBranding,
         // Methods
         addProduct,
         updateProduct,

@@ -18,7 +18,7 @@ import ProductFormModal from './ProductFormModal';
 import CategoryManagerModal from './CategoryManagerModal';
 
 export default function ProductInventoryManager() {
-  const { products, deleteProduct, updateStock, calculateMargin, categories } = useRestaurant();
+  const { products, deleteProduct, updateStock, categories } = useRestaurant();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,12 +44,6 @@ export default function ProductInventoryManager() {
     setIsModalOpen(true);
   };
 
-  const getMarginBadge = (margin) => {
-    if (margin >= 60) return 'bg-emerald-100 text-emerald-800 border-emerald-300';
-    if (margin >= 35) return 'bg-amber-100 text-amber-800 border-amber-300';
-    return 'bg-rose-100 text-rose-800 border-rose-300';
-  };
-
   return (
     <div className="min-h-screen bg-slate-100 pb-16">
       <AdminNavbar />
@@ -60,11 +54,11 @@ export default function ProductInventoryManager() {
             <div className="flex items-center gap-2">
               <Package className="w-6 h-6 text-amber-400" />
               <h1 className="text-lg sm:text-xl font-black tracking-tight text-white m-0">
-                Catálogo, Inventario & Margen de Ganancia
+                Catálogo & Control de Stock
               </h1>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              Gestión de insumos, cálculo automático de rentabilidad y alertas de stock bajo
+              Gestión de platos, categorías, precios y alertas de stock bajo
             </p>
           </div>
 
@@ -90,7 +84,7 @@ export default function ProductInventoryManager() {
 
       <div className="max-w-7xl mx-auto p-4 space-y-4">
         {/* Metric Cards Summary */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs">
             <p className="text-xs text-slate-500 font-medium">Total Productos</p>
             <h3 className="text-xl font-black text-slate-900 mt-1 m-0">{products.length}</h3>
@@ -111,18 +105,9 @@ export default function ProductInventoryManager() {
           </div>
 
           <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs">
-            <p className="text-xs text-slate-500 font-medium">Categorías</p>
+            <p className="text-xs text-slate-500 font-medium">Categorías Activas</p>
             <h3 className="text-xl font-black text-indigo-600 mt-1 m-0">
               {categories.filter((c) => c.id !== 'cat-all').length}
-            </h3>
-          </div>
-
-          <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs">
-            <p className="text-xs text-slate-500 font-medium">Margen Promedio</p>
-            <h3 className="text-xl font-black text-emerald-600 mt-1 m-0">
-              {Math.round(
-                products.reduce((acc, p) => acc + calculateMargin(p.price, p.cost), 0) / (products.length || 1)
-              )}%
             </h3>
           </div>
         </div>
@@ -165,15 +150,12 @@ export default function ProductInventoryManager() {
                   <th className="p-3 pl-4">Producto</th>
                   <th className="p-3">Precio Venta</th>
                   <th className="p-3">Costo Insumo</th>
-                  <th className="p-3">Margen Ganancia</th>
                   <th className="p-3">Inventario / Stock</th>
                   <th className="p-3 pr-4 text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredProducts.map((p) => {
-                  const margin = calculateMargin(p.price, p.cost);
-                  const netProfit = p.price - p.cost;
                   const isLowStock = p.stock <= p.minStockAlert;
 
                   return (
@@ -201,13 +183,6 @@ export default function ProductInventoryManager() {
                       {/* Cost */}
                       <td className="p-3 font-medium text-slate-600">
                         ${p.cost.toFixed(2)}
-                      </td>
-
-                      {/* Margin */}
-                      <td className="p-3">
-                        <span className={`inline-block px-2 py-0.5 rounded-full font-extrabold border text-[10px] ${getMarginBadge(margin)}`}>
-                          {margin}% (+${netProfit.toFixed(2)})
-                        </span>
                       </td>
 
                       {/* Stock Adjuster */}
