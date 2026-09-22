@@ -12,6 +12,7 @@ import OrderTrackingView from './components/customer/OrderTrackingView';
 import BottomNav from './components/customer/BottomNav';
 import OrderKanban from './components/admin/OrderKanban';
 import ProductInventoryManager from './components/admin/ProductInventoryManager';
+import AdminDashboard from './components/admin/AdminDashboard';
 import { Clock, MapPin, Compass, ShieldCheck } from 'lucide-react';
 
 function CustomerMenuView() {
@@ -96,7 +97,7 @@ function CustomerMenuView() {
             {/* Discreet portal link for restaurant staff / owner */}
             <div className="pt-4 border-t border-slate-100">
               <Link
-                to="/admin/cocina"
+                to="/admin"
                 className="text-[10px] text-slate-400 hover:text-slate-600 transition-colors inline-flex items-center gap-1"
               >
                 <ShieldCheck className="w-3 h-3" />
@@ -141,7 +142,7 @@ export default function App() {
           <Route path="/seguimiento" element={<Navigate to="/" replace />} />
 
           {/* 3. Vistas de Administración & Cocina (Aparte) */}
-          <Route path="/admin" element={<Navigate to="/admin/cocina" replace />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/cocina" element={<OrderKanban />} />
           <Route path="/admin/inventario" element={<ProductInventoryManager />} />
 

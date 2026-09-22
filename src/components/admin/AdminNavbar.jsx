@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChefHat, Package, ExternalLink, Flame, ArrowLeft } from 'lucide-react';
+import { ChefHat, Package, ExternalLink, Flame, ArrowLeft, LayoutDashboard } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 
 export default function AdminNavbar() {
@@ -17,7 +17,7 @@ export default function AdminNavbar() {
     <header className="sticky top-0 z-40 bg-slate-900 border-b border-slate-800 text-white px-4 py-2.5 shadow-md">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
         {/* Brand */}
-        <div className="flex items-center gap-3">
+        <Link to="/admin" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center shadow-md">
             <Flame className="w-5 h-5 text-white" />
           </div>
@@ -32,14 +32,26 @@ export default function AdminNavbar() {
             </div>
             <p className="text-[11px] text-slate-400">Cocina & Gestión de Restaurante</p>
           </div>
-        </div>
+        </Link>
 
         {/* Admin Navigation Pills */}
         <nav className="flex items-center gap-1.5 bg-slate-800 p-1 rounded-xl border border-slate-700">
           <Link
+            to="/admin"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              location.pathname === '/admin'
+                ? 'bg-amber-500 text-slate-950 shadow-sm'
+                : 'text-slate-300 hover:text-white hover:bg-slate-700/60'
+            }`}
+          >
+            <LayoutDashboard className="w-3.5 h-3.5" />
+            <span>Panel</span>
+          </Link>
+
+          <Link
             to="/admin/cocina"
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              location.pathname === '/admin/cocina' || location.pathname === '/admin'
+              location.pathname === '/admin/cocina'
                 ? 'bg-amber-500 text-slate-950 shadow-sm'
                 : 'text-slate-300 hover:text-white hover:bg-slate-700/60'
             }`}
