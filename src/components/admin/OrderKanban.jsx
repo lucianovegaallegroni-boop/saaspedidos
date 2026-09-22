@@ -9,17 +9,20 @@ import {
   ShoppingBag, 
   UtensilsCrossed, 
   CheckCircle2, 
-  AlertTriangle,
-  ArrowRight,
-  Filter,
-  Check,
-  RefreshCw
+  AlertTriangle, 
+  ArrowRight, 
+  Filter, 
+  Check, 
+  RefreshCw,
+  Copy,
+  Share2
 } from 'lucide-react';
 
 export default function OrderKanban() {
   const { orders, updateOrderPaymentStatus, updateOrderOperationalStatus } = useRestaurant();
   const [selectedColumn, setSelectedColumn] = useState('ALL'); // 'ALL' or specific status for mobile tabs
   const [previewImage, setPreviewImage] = useState(null);
+  const [copiedOrderId, setCopiedOrderId] = useState(null);
 
   const KANBAN_COLUMNS = [
     { id: 'RECEIVED', title: 'Recibidos', icon: ShoppingBag, color: 'border-blue-500 bg-blue-50/40 text-blue-800' },
@@ -139,6 +142,44 @@ export default function OrderKanban() {
                           {order.customerName}
                         </h4>
                         <p className="text-[11px] text-slate-500">{order.customerPhone}</p>
+
+                        {/* Quick tracking link actions for staff */}
+                        <div className="flex items-center gap-1.5 mt-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const url = `${window.location.origin}/seguimiento/${order.id}`;
+                              navigator.clipboard.writeText(url);
+                              setCopiedOrderId(order.id);
+                              setTimeout(() => setCopiedOrderId(null), 2500);
+                            }}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white hover:bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-700 shadow-2xs transition-all active:scale-95"
+                            title="Copiar URL única de seguimiento del cliente"
+                          >
+                            {copiedOrderId === order.id ? (
+                              <>
+                                <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />
+                                <span className="text-emerald-700">¡Copiado!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-3 h-3 text-amber-500" />
+                                <span>Link Cliente</span>
+                              </>
+                            )}
+                          </button>
+
+                          <a
+                            href={`https://api.whatsapp.com/send?phone=${order.customerPhone.replace(/\D/g, '')}&text=${encodeURIComponent(`Hola ${order.customerName}, puedes consultar el estado en tiempo real de tu pedido #${order.id} aquí: ${window.location.origin}/seguimiento/${order.id}`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-[10px] font-bold text-emerald-700 shadow-2xs transition-all active:scale-95"
+                            title="Enviar enlace por WhatsApp"
+                          >
+                            <Share2 className="w-3 h-3" />
+                            <span>WhatsApp</span>
+                          </a>
+                        </div>
                       </div>
 
                       <div className="text-right">

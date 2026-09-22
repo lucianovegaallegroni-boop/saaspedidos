@@ -1,5 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useRestaurant, PAYMENT_STATUSES, OPERATIONAL_STATUSES } from '../../context/RestaurantContext';
 import { 
   CheckCircle2, 
@@ -9,32 +9,43 @@ import {
   ShoppingBag, 
   CreditCard, 
   AlertCircle, 
-  Sparkles,
-  RefreshCw,
-  Phone,
-  QrCode,
-  ArrowLeft
+  Sparkles, 
+  RefreshCw, 
+  Phone, 
+  QrCode, 
+  ArrowLeft,
+  Copy,
+  Check,
+  Share2,
+  ExternalLink
 } from 'lucide-react';
 
 export default function OrderTrackingView() {
   const navigate = useNavigate();
-  const { 
-    orders, 
-    currentTrackingOrderId, 
-    setCurrentTrackingOrderId 
-  } = useRestaurant();
+  const { orderId } = useParams();
+  const { orders } = useRestaurant();
+  const [copied, setCopied] = useState(false);
 
-  const currentOrder = orders.find((o) => o.id === currentTrackingOrderId) || orders[0];
+  // Buscar estrictamente el pedido único especificado en la URL dinámica
+  const currentOrder = orders.find((o) => o.id === orderId);
 
   if (!currentOrder) {
     return (
-      <div className="p-8 text-center space-y-3">
-        <p className="text-slate-500 text-sm">No hay pedidos registrados para seguimiento.</p>
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center space-y-4">
+        <div className="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center">
+          <AlertCircle className="w-8 h-8" />
+        </div>
+        <div className="space-y-1">
+          <h2 className="text-lg font-black text-slate-900 m-0">Pedido no encontrado</h2>
+          <p className="text-xs text-slate-500 max-w-sm">
+            No se encontró ningún pedido con el identificador <strong>#{orderId || 'Desconocido'}</strong>. Verifica que el enlace sea correcto.
+          </p>
+        </div>
         <button
           onClick={() => navigate('/')}
-          className="px-4 py-2 bg-amber-500 text-slate-900 font-bold rounded-xl text-xs"
+          className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-bold rounded-xl text-xs transition-all shadow-xs"
         >
-          Ir al Menú
+          Volver al Menú
         </button>
       </div>
     );
@@ -42,6 +53,23 @@ export default function OrderTrackingView() {
 
   const paymentMeta = PAYMENT_STATUSES[currentOrder.paymentStatus] || PAYMENT_STATUSES.PENDING;
   const operationalMeta = OPERATIONAL_STATUSES[currentOrder.operationalStatus] || OPERATIONAL_STATUSES.RECEIVED;
+
+  const trackingUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  const handleCopyLink = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(trackingUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  };
+
+  const handleShareWhatsApp = () => {
+    const text = encodeURIComponent(
+      `¡Hola ${currentOrder.customerName}! Puedes seguir el estado en tiempo real de tu pedido #${currentOrder.id} en este enlace: ${trackingUrl}`
+    );
+    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+  };
 
   // Stepper steps configuration
   const STEPS = [
@@ -85,38 +113,65 @@ export default function OrderTrackingView() {
             <ArrowLeft className="w-4 h-4" />
             <span>Volver al Menú</span>
           </button>
-          <span className="text-xs text-slate-400">Seguimiento en Vivo</span>
+          <span className="text-[11px] text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700">
+            Seguimiento en Vivo
+          </span>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-lg sm:text-xl font-black text-white m-0">
                 Pedido #{currentOrder.id}
               </h1>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${paymentMeta.color}`}>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap ${paymentMeta.color}`}>
                 {paymentMeta.label}
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-400 mt-1">
               Cliente: {currentOrder.customerName} ({currentOrder.customerPhone})
             </p>
           </div>
 
-          {/* Quick switcher for demo purposes */}
-          {orders.length > 1 && (
-            <select
-              value={currentOrder.id}
-              onChange={(e) => setCurrentTrackingOrderId(e.target.value)}
-              className="bg-slate-800 border border-slate-700 text-white text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-500"
+          {/* Share & Copy URL Action Buttons */}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handleCopyLink}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-all active:scale-95 shadow-2xs"
+              title="Copiar enlace directo de este pedido"
             >
-              {orders.map((ord) => (
-                <option key={ord.id} value={ord.id}>
-                  Ver {ord.id} - {ord.customerName}
-                </option>
-              ))}
-            </select>
-          )}
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />
+                  <span className="text-emerald-400 font-bold">¡Copiado!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Copiar Enlace</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={handleShareWhatsApp}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all active:scale-95 shadow-xs"
+              title="Enviar enlace por WhatsApp"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">WhatsApp</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Unique dynamic URL info bar */}
+        <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+          <span className="truncate max-w-[280px] sm:max-w-md font-mono text-[10px] text-slate-400">
+            {trackingUrl}
+          </span>
+          <span className="text-[10px] text-amber-400 font-semibold shrink-0 ml-2">
+            URL Única
+          </span>
         </div>
       </div>
 

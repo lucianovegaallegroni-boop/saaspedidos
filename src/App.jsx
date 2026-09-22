@@ -73,11 +73,11 @@ function CustomerMenuView() {
               <div className="p-3 bg-amber-500/10 border border-amber-300/60 rounded-2xl max-w-md mx-auto">
                 <p className="text-xs text-amber-900 font-medium">¿Realizaste una orden recientemente?</p>
                 <Link
-                  to="/seguimiento"
+                  to={`/seguimiento/${orders[0].id}`}
                   className="mt-1.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold shadow-xs transition-all"
                 >
                   <Compass className="w-3.5 h-3.5" />
-                  <span>Consultar Seguimiento de tu Pedido</span>
+                  <span>Consultar Seguimiento (#{orders[0].id})</span>
                 </Link>
               </div>
             )}
@@ -136,8 +136,9 @@ export default function App() {
           {/* 1. Vista Pública de Menú Cliente (Página inicial limpia) */}
           <Route path="/" element={<CustomerMenuView />} />
 
-          {/* 2. Vista de Seguimiento de Pedidos (Aparte) */}
-          <Route path="/seguimiento" element={<OrderTrackingView />} />
+          {/* 2. Vista de Seguimiento Dinámica Única por Pedido */}
+          <Route path="/seguimiento/:orderId" element={<OrderTrackingView />} />
+          <Route path="/seguimiento" element={<Navigate to="/" replace />} />
 
           {/* 3. Vistas de Administración & Cocina (Aparte) */}
           <Route path="/admin" element={<Navigate to="/admin/cocina" replace />} />

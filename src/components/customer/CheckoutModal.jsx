@@ -73,7 +73,7 @@ export default function CheckoutModal({ isOpen, onClose }) {
 
     // Simulate backend network latency
     setTimeout(() => {
-      createOrder({
+      const newOrder = createOrder({
         customerName: customerName.trim(),
         customerPhone: customerPhone.trim(),
         deliveryType: 'TAKEAWAY',
@@ -83,7 +83,7 @@ export default function CheckoutModal({ isOpen, onClose }) {
       });
       setIsSubmitting(false);
       onClose();
-      navigate('/seguimiento');
+      navigate(`/seguimiento/${newOrder.id}`);
     }, 600);
   };
 
