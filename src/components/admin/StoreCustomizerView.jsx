@@ -153,6 +153,7 @@ export default function StoreCustomizerView() {
 
   const fileInputRef = useRef(null);
   const [uploadError, setUploadError] = useState(null);
+  const [savedSuccess, setSavedSuccess] = useState(false);
 
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
