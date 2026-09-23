@@ -3,7 +3,7 @@ import { X, Plus, Minus, Check, AlertTriangle } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 
 export default function ProductDetailModal({ product, onClose }) {
-  const { addToCart, cart, getActivePromotionForProduct, getProductEffectivePrice } = useRestaurant();
+  const { addToCart, cart, getActivePromotionForProduct, getProductEffectivePrice, storeStatus } = useRestaurant();
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
 
@@ -123,13 +123,22 @@ export default function ProductDetailModal({ product, onClose }) {
           {/* Add to order CTA */}
           <button
             onClick={handleAdd}
-            disabled={isOutOfStock}
-            className="flex-1 bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-slate-950 font-bold py-3 px-4 rounded-xl shadow-sm text-xs sm:text-sm flex items-center justify-between transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isOutOfStock || !storeStatus?.isOpen}
+            className={`flex-1 font-bold py-3 px-4 rounded-xl shadow-sm text-xs sm:text-sm flex items-center justify-between transition-all ${
+              !storeStatus?.isOpen
+                ? 'bg-slate-200 text-slate-500 cursor-not-allowed border border-slate-300'
+                : 'bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-slate-950 disabled:opacity-50 disabled:cursor-not-allowed'
+            }`}
           >
-            <span>Agregar al pedido</span>
+            <span>{!storeStatus?.isOpen ? 'Local Cerrado (No disponible)' : 'Agregar al pedido'}</span>
             <span>${(effectivePrice * quantity).toFixed(2)}</span>
           </button>
         </div>
+        {!storeStatus?.isOpen && (
+          <div className="px-4 pb-3 bg-slate-50 text-[11px] text-rose-600 font-semibold text-center">
+            {storeStatus?.reason || 'El local está cerrado en este momento y no recibe pedidos.'}
+          </div>
+        )}
       </div>
     </div>
   );

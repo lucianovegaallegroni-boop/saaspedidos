@@ -3,7 +3,7 @@ import { useRestaurant } from '../../context/RestaurantContext';
 import { Plus, Minus, AlertCircle } from 'lucide-react';
 
 export default function ProductCard({ product, onOpenDetail }) {
-  const { cart, addToCart, updateCartQuantity, getActivePromotionForProduct, getProductEffectivePrice } = useRestaurant();
+  const { cart, addToCart, updateCartQuantity, getActivePromotionForProduct, getProductEffectivePrice, storeStatus } = useRestaurant();
 
   const cartItem = cart.find((item) => item.product.id === product.id);
   const currentQty = cartItem ? cartItem.quantity : 0;
@@ -83,6 +83,14 @@ export default function ProductCard({ product, onOpenDetail }) {
                 className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-400 cursor-not-allowed"
               >
                 Sin stock
+              </button>
+            ) : !storeStatus?.isOpen ? (
+              <button
+                onClick={() => onOpenDetail(product)}
+                className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 transition-colors"
+                title={storeStatus?.reason || 'Local Cerrado'}
+              >
+                Cerrado
               </button>
             ) : currentQty > 0 ? (
               <div className="flex items-center bg-slate-900 text-white rounded-xl shadow-xs overflow-hidden">

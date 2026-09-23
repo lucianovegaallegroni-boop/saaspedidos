@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Sparkles, AlertCircle, DoorClosed } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 
 export default function CartDrawer({ onOpenCheckout }) {
@@ -16,6 +16,8 @@ export default function CartDrawer({ onOpenCheckout }) {
     removeFromCart,
     clearCart,
     getProductEffectivePrice,
+    storeStatus,
+    branding
   } = useRestaurant();
 
   if (!isCartOpen) return null;
@@ -191,15 +193,42 @@ export default function CartDrawer({ onOpenCheckout }) {
               </div>
             </div>
 
+            {!storeStatus?.isOpen && (
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2 text-xs text-rose-800">
+                <DoorClosed className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <p className="font-bold text-rose-900">Local Cerrado Ahora</p>
+                  <p className="text-[11px] text-rose-700 leading-tight">
+                    {storeStatus?.reason || `No estamos recibiendo pedidos en este momento. Horario: ${branding?.openingTime || '12:00'} a ${branding?.closingTime || '23:30'} hs.`}
+                  </p>
+                </div>
+              </div>
+            )}
+
             <button
               onClick={() => {
+                if (!storeStatus?.isOpen) return;
                 setIsCartOpen(false);
                 onOpenCheckout();
               }}
-              className="w-full bg-amber-500 hover:bg-amber-600 active:scale-[0.99] text-slate-950 font-bold py-3.5 px-4 rounded-xl shadow-md text-sm flex items-center justify-center gap-2 transition-all"
+              disabled={!storeStatus?.isOpen}
+              className={`w-full font-bold py-3.5 px-4 rounded-xl shadow-md text-sm flex items-center justify-center gap-2 transition-all ${
+                !storeStatus?.isOpen
+                  ? 'bg-slate-200 text-slate-500 cursor-not-allowed border border-slate-300'
+                  : 'bg-amber-500 hover:bg-amber-600 active:scale-[0.99] text-slate-950'
+              }`}
             >
-              <span>Continuar al Checkout</span>
-              <ArrowRight className="w-4 h-4" />
+              {!storeStatus?.isOpen ? (
+                <>
+                  <DoorClosed className="w-4 h-4" />
+                  <span>Local Cerrado</span>
+                </>
+              ) : (
+                <>
+                  <span>Continuar al Checkout</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </div>
         )}

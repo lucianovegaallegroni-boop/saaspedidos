@@ -416,6 +416,12 @@ export function RestaurantProvider({ children }) {
 
   // Checkout and Order creation
   const createOrder = ({ customerName, customerPhone, address, paymentMethod, receiptImage }) => {
+    // Guard: Prevent order creation if store is closed
+    const currentStatus = getStoreScheduleStatus(branding);
+    if (!currentStatus.isOpen) {
+      throw new Error(currentStatus.reason || 'El local está cerrado en este momento y no puede recibir pedidos.');
+    }
+
     // Generate Order ID
     const nextNum = orders.length + 1001;
     const orderId = `ORD-${nextNum}`;

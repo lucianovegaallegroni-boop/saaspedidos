@@ -85,17 +85,22 @@ export default function CheckoutModal({ isOpen, onClose }) {
 
     // Simulate backend network latency
     setTimeout(() => {
-      const newOrder = createOrder({
-        customerName: customerName.trim(),
-        customerPhone: customerPhone.trim(),
-        deliveryType: 'TAKEAWAY',
-        address: 'Retiro en mostrador del local (Av. Corrientes 1240)' + (pickupNotes.trim() ? ` - Nota: ${pickupNotes.trim()}` : ''),
-        paymentMethod: paymentMode,
-        receiptImage: paymentMode === 'YAPPY_TRANSFER' ? receiptImage : null,
-      });
-      setIsSubmitting(false);
-      onClose();
-      navigate(`/seguimiento/${newOrder.id}`);
+      try {
+        const newOrder = createOrder({
+          customerName: customerName.trim(),
+          customerPhone: customerPhone.trim(),
+          deliveryType: 'TAKEAWAY',
+          address: 'Retiro en mostrador del local (Av. Corrientes 1240)' + (pickupNotes.trim() ? ` - Nota: ${pickupNotes.trim()}` : ''),
+          paymentMethod: paymentMode,
+          receiptImage: paymentMode === 'YAPPY_TRANSFER' ? receiptImage : null,
+        });
+        setIsSubmitting(false);
+        onClose();
+        navigate(`/seguimiento/${newOrder.id}`);
+      } catch (err) {
+        setIsSubmitting(false);
+        setFormError(err.message || 'No se pudo crear el pedido porque el local se encuentra cerrado.');
+      }
     }, 600);
   };
 
@@ -364,11 +369,20 @@ export default function CheckoutModal({ isOpen, onClose }) {
           <div className="pt-2">
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-amber-500 hover:bg-amber-600 active:scale-[0.99] text-slate-950 font-black py-3.5 px-4 rounded-xl shadow-md text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+              disabled={isSubmitting || !storeStatus?.isOpen}
+              className={`w-full font-black py-3.5 px-4 rounded-xl shadow-md text-sm flex items-center justify-center gap-2 transition-all ${
+                !storeStatus?.isOpen
+                  ? 'bg-slate-300 text-slate-500 cursor-not-allowed border border-slate-300'
+                  : 'bg-amber-500 hover:bg-amber-600 active:scale-[0.99] text-slate-950 disabled:opacity-50'
+              }`}
             >
               {isSubmitting ? (
                 <span>Creando orden...</span>
+              ) : !storeStatus?.isOpen ? (
+                <>
+                  <DoorClosed className="w-4 h-4" />
+                  <span>Local Cerrado (No se reciben pedidos)</span>
+                </>
               ) : (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
@@ -376,6 +390,11 @@ export default function CheckoutModal({ isOpen, onClose }) {
                 </>
               )}
             </button>
+            {!storeStatus?.isOpen && (
+              <p className="text-[11px] text-rose-600 font-semibold text-center mt-2">
+                {storeStatus?.reason || 'El local está fuera de su horario de atención y no puede procesar pedidos.'}
+              </p>
+            )}
           </div>
         </form>
       </div>

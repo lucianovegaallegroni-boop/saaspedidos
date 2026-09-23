@@ -3,7 +3,7 @@ import { useRestaurant, isPromotionActive } from '../../context/RestaurantContex
 import { Sparkles, Plus, Check, Clock } from 'lucide-react';
 
 export default function FeaturedPromos({ onSelectProduct }) {
-  const { products, promotions = [], addToCart, cart } = useRestaurant();
+  const { products, promotions = [], addToCart, cart, storeStatus } = useRestaurant();
 
   // Find active promotions mapped to available products
   const activePromoItems = promotions
@@ -98,14 +98,21 @@ export default function FeaturedPromos({ onSelectProduct }) {
                   </div>
 
                   <button
-                    onClick={() => addToCart(product, 1)}
+                    onClick={() => {
+                      if (!storeStatus?.isOpen) return onSelectProduct(product);
+                      addToCart(product, 1);
+                    }}
                     className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                      inCart
+                      !storeStatus?.isOpen
+                        ? 'bg-slate-100 text-slate-500 border border-slate-200 cursor-pointer hover:bg-slate-200'
+                        : inCart
                         ? 'bg-emerald-500 text-white shadow-xs'
                         : 'bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-sm active:scale-95'
                     }`}
                   >
-                    {inCart ? (
+                    {!storeStatus?.isOpen ? (
+                      <span>Cerrado</span>
+                    ) : inCart ? (
                       <>
                         <Check className="w-3.5 h-3.5 stroke-[3]" />
                         <span>({inCart.quantity})</span>
