@@ -166,7 +166,7 @@ export default function AdminLogin() {
             to="/"
             className="text-xs text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 font-semibold"
           >
-            ← Volver a la Vista de Clientes
+            ← Volver al Menú
           </Link>
         </div>
       </div>
