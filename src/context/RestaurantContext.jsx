@@ -170,8 +170,18 @@ export function RestaurantProvider({ children }) {
 
   // Load orders from localStorage or fallback
   const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('saas_orders');
-    return saved ? JSON.parse(saved) : INITIAL_ORDERS;
+    try {
+      const saved = localStorage.getItem('saas_orders');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.error('Error parsing saas_orders:', e);
+    }
+    return INITIAL_ORDERS;
   });
 
   // Cart state: array of { product, quantity, notes }
@@ -492,6 +502,11 @@ export function RestaurantProvider({ children }) {
     );
   };
 
+  const resetOrders = () => {
+    setOrders(INITIAL_ORDERS);
+    localStorage.setItem('saas_orders', JSON.stringify(INITIAL_ORDERS));
+  };
+
   // Helper: Profit margin calculation
   // Margen % = ((Precio - Costo) / Precio) * 100
   const calculateMargin = (price, cost) => {
@@ -553,6 +568,7 @@ export function RestaurantProvider({ children }) {
         createOrder,
         updateOrderPaymentStatus,
         updateOrderOperationalStatus,
+        resetOrders,
         calculateMargin,
       }}
     >

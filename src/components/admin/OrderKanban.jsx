@@ -101,9 +101,9 @@ function OrderCard({
             </div>
 
             <h4 className="font-bold text-xs text-slate-800 m-0">
-              {order.customerName}
+              {order.customerName || 'Cliente'}
             </h4>
-            <p className="text-[11px] text-slate-500">{order.customerPhone}</p>
+            <p className="text-[11px] text-slate-500">{order.customerPhone || 'Sin teléfono'}</p>
 
             {/* Quick tracking link actions for staff */}
             <div className="flex items-center gap-1.5 mt-2">
@@ -126,16 +126,18 @@ function OrderCard({
                 )}
               </button>
 
-              <a
-                href={`https://api.whatsapp.com/send?phone=${order.customerPhone.replace(/\D/g, '')}&text=${encodeURIComponent(`Hola ${order.customerName}, puedes consultar el estado en tiempo real de tu pedido #${order.id} aquí: https://saaspedidos.vercel.app/seguimiento/${order.id}`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-[10px] font-bold text-emerald-700 shadow-2xs transition-all cursor-pointer"
-                title="Compartir link por WhatsApp"
-              >
-                <Share2 className="w-3 h-3 text-emerald-600" />
-                <span>WhatsApp</span>
-              </a>
+              {order.customerPhone && (
+                <a
+                  href={`https://api.whatsapp.com/send?phone=${String(order.customerPhone).replace(/\D/g, '')}&text=${encodeURIComponent(`Hola ${order.customerName || 'Cliente'}, puedes consultar el estado en tiempo real de tu pedido #${order.id} aquí: https://saaspedidos.vercel.app/seguimiento/${order.id}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-[10px] font-bold text-emerald-700 shadow-2xs transition-all cursor-pointer"
+                  title="Compartir link por WhatsApp"
+                >
+                  <Share2 className="w-3 h-3 text-emerald-600" />
+                  <span>WhatsApp</span>
+                </a>
+              )}
 
               <a
                 href={`/seguimiento/${order.id}`}
@@ -164,7 +166,7 @@ function OrderCard({
       {/* Items list */}
       <div className="p-4 flex-1">
         <div className="space-y-2">
-          {order.items.map((item, idx) => (
+          {(order.items || []).map((item, idx) => (
             <div key={idx} className="flex justify-between items-start text-xs border-b border-slate-50 pb-1.5 last:border-0">
               <div className="flex gap-2">
                 <span className="font-extrabold text-amber-600 shrink-0 bg-amber-50 w-5 h-5 rounded-md flex items-center justify-center text-[11px]">
@@ -290,7 +292,7 @@ function OrderCard({
 }
 
 export default function OrderKanban() {
-  const { orders, updateOrderPaymentStatus, updateOrderOperationalStatus } = useRestaurant();
+  const { orders = [], updateOrderPaymentStatus, updateOrderOperationalStatus, resetOrders } = useRestaurant();
   const { currentUser } = useAuth();
   const [selectedColumn, setSelectedColumn] = useState('ALL'); // Operational status filter
   const [paymentTypeFilter, setPaymentTypeFilter] = useState('ALL'); // 'ALL' | 'YAPPY_TRANSFER' | 'PAY_IN_STORE'
@@ -447,6 +449,19 @@ export default function OrderKanban() {
             <span className="px-2.5 py-1 rounded-lg bg-emerald-950 border border-emerald-800 text-emerald-300 font-bold">
               🏪 Local: {inStoreOrders.length} (${inStoreTotal.toFixed(2)})
             </span>
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm('¿Deseas restaurar los pedidos de demostración iniciales?')) {
+                  resetOrders();
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-bold transition-all cursor-pointer"
+              title="Restaurar pedidos demo si se borraron o completaron"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-amber-400" />
+              <span>Restaurar Demo</span>
+            </button>
           </div>
         </div>
       </div>
@@ -683,9 +698,35 @@ export default function OrderKanban() {
           /* General Grid Layout */
           <div>
             {filteredOrders.length === 0 ? (
-              <div className="bg-white rounded-2xl p-8 text-center text-slate-500 border border-slate-200 space-y-2">
-                <p className="font-bold text-sm">No hay pedidos para este filtro</p>
-                <p className="text-xs">Selecciona otro estado o tipo de pago arriba.</p>
+              <div className="bg-white rounded-2xl p-8 text-center text-slate-500 border border-slate-200 space-y-3">
+                <p className="font-bold text-sm text-slate-800">No hay pedidos para mostrar con los filtros actuales</p>
+                <p className="text-xs text-slate-400">
+                  {selectedColumn !== 'ALL' || paymentTypeFilter !== 'ALL'
+                    ? 'Prueba restableciendo los filtros de estado o tipo de pago.'
+                    : 'Actualmente no hay pedidos activos registrados en el sistema.'}
+                </p>
+                <div className="flex items-center justify-center gap-2 pt-2">
+                  {(selectedColumn !== 'ALL' || paymentTypeFilter !== 'ALL') && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedColumn('ALL');
+                        setPaymentTypeFilter('ALL');
+                      }}
+                      className="px-3.5 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-all cursor-pointer"
+                    >
+                      Mostrar Todos los Pedidos
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={resetOrders}
+                    className="px-3.5 py-1.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-bold hover:bg-amber-600 transition-all cursor-pointer flex items-center gap-1.5"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Restaurar Pedidos Demo</span>
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
