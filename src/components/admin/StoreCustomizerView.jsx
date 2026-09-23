@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useRestaurant, getStoreScheduleStatus } from '../../context/RestaurantContext';
+import { useRestaurant, getStoreScheduleStatus, DAYS_OF_WEEK } from '../../context/RestaurantContext';
 import AdminNavbar from './AdminNavbar';
 import {
   Palette,
@@ -24,7 +24,8 @@ import {
   AlertTriangle,
   Clock,
   DoorClosed,
-  Power
+  Power,
+  Calendar
 } from 'lucide-react';
 
 // Tipografías disponibles
@@ -155,6 +156,7 @@ export default function StoreCustomizerView() {
     openingTime: branding?.openingTime || '12:00',
     closingTime: branding?.closingTime || '23:30',
     operatingDays: branding?.operatingDays || 'Lun - Dom',
+    closedDays: Array.isArray(branding?.closedDays) ? branding.closedDays : [],
     isForceClosed: branding?.isForceClosed || false,
     closedMessage: branding?.closedMessage || 'El local se encuentra cerrado en este momento. Te esperamos en nuestro horario habitual.'
   });
@@ -200,6 +202,35 @@ export default function StoreCustomizerView() {
     }));
   };
 
+  const handleToggleClosedDay = (dayId) => {
+    setFormData((prev) => {
+      const currentClosed = Array.isArray(prev.closedDays) ? prev.closedDays : [];
+      const isAlreadyClosed = currentClosed.includes(dayId);
+      const newClosed = isAlreadyClosed
+        ? currentClosed.filter((id) => id !== dayId)
+        : [...currentClosed, dayId];
+
+      // Auto-generar texto amigable si se desea
+      let updatedOperatingDays = prev.operatingDays;
+      if (newClosed.length === 0) {
+        updatedOperatingDays = 'Lun - Dom';
+      } else if (newClosed.length === 1) {
+        const closedDayName = DAYS_OF_WEEK.find((d) => d.id === newClosed[0])?.name;
+        updatedOperatingDays = `Todos los días (Excepto ${closedDayName})`;
+      } else if (newClosed.includes(0) && newClosed.includes(6) && newClosed.length === 2) {
+        updatedOperatingDays = 'Lunes a Viernes';
+      } else if (newClosed.includes(1) && newClosed.length === 1) {
+        updatedOperatingDays = 'Martes a Domingo';
+      }
+
+      return {
+        ...prev,
+        closedDays: newClosed,
+        operatingDays: updatedOperatingDays
+      };
+    });
+  };
+
   const handleSave = (e) => {
     if (e) e.preventDefault();
     updateBranding(formData);
@@ -224,6 +255,7 @@ export default function StoreCustomizerView() {
         openingTime: '12:00',
         closingTime: '23:30',
         operatingDays: 'Lun - Dom',
+        closedDays: [],
         isForceClosed: false,
         closedMessage: 'El local se encuentra cerrado en este momento. Te esperamos en nuestro horario habitual.'
       });
@@ -715,10 +747,86 @@ export default function StoreCustomizerView() {
                   </div>
                 </div>
 
-                {/* Días de Atención */}
-                <div className="space-y-1.5">
+                {/* Días Cerrados (Selector Interactivo) */}
+                <div className="space-y-2.5 pt-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <label className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-pink-600" />
+                        <span>Días que el local permanece CERRADO:</span>
+                      </label>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Haz clic en los días en que NO abres (por ejemplo Lunes de descanso)
+                      </p>
+                    </div>
+
+                    {formData.closedDays?.length > 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, closedDays: [], operatingDays: 'Lun - Dom' })}
+                        className="text-[11px] font-bold text-slate-500 hover:text-slate-800 underline cursor-pointer"
+                      >
+                        Abrir todos los días
+                      </button>
+                    ) : (
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        Abre todos los días
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Pills de selección de días cerrados */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+                    {DAYS_OF_WEEK.map((day) => {
+                      const isClosed = formData.closedDays?.includes(day.id);
+                      return (
+                        <button
+                          key={day.id}
+                          type="button"
+                          onClick={() => handleToggleClosedDay(day.id)}
+                          className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 text-center transition-all cursor-pointer ${
+                            isClosed
+                              ? 'bg-rose-50 border-rose-400 text-rose-800 shadow-xs ring-1 ring-rose-400'
+                              : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 hover:border-slate-300'
+                          }`}
+                        >
+                          <span className="text-xs font-black">
+                            {day.name}
+                          </span>
+                          <span
+                            className={`text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded-full ${
+                              isClosed
+                                ? 'bg-rose-600 text-white'
+                                : 'bg-emerald-100 text-emerald-800'
+                            }`}
+                          >
+                            {isClosed ? 'Cerrado' : 'Abierto'}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {formData.closedDays?.length > 0 && (
+                    <div className="p-2.5 rounded-xl bg-rose-50/70 border border-rose-200/80 text-[11px] text-rose-800 flex items-center gap-2">
+                      <DoorClosed className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                      <span>
+                        Días de descanso seleccionados:{' '}
+                        <strong>
+                          {formData.closedDays
+                            .map((id) => DAYS_OF_WEEK.find((d) => d.id === id)?.name)
+                            .filter(Boolean)
+                            .join(', ')}
+                        </strong>
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Días de Atención (Texto visible en menú) */}
+                <div className="space-y-1.5 pt-1 border-t border-slate-100">
                   <label className="font-bold text-slate-700 text-xs block">
-                    Días de Operación (Texto visible en menú):
+                    Texto de Días de Operación (Visible para los clientes):
                   </label>
                   <input
                     type="text"
@@ -727,6 +835,9 @@ export default function StoreCustomizerView() {
                     placeholder="Ej: Lun - Dom, Martes a Domingo..."
                     className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
+                  <p className="text-[10px] text-slate-400">
+                    Se actualiza automáticamente al cambiar los días cerrados, o puedes escribir un texto personalizado.
+                  </p>
                 </div>
 
                 {/* Indicador de Estado Actual Calculado */}

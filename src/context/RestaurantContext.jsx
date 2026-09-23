@@ -41,6 +41,16 @@ export function isPromotionActive(promo, now = new Date()) {
   return checkPromotionStatus(promo, now).active;
 }
 
+export const DAYS_OF_WEEK = [
+  { id: 1, name: 'Lunes', short: 'Lun' },
+  { id: 2, name: 'Martes', short: 'Mar' },
+  { id: 3, name: 'Miércoles', short: 'Mié' },
+  { id: 4, name: 'Jueves', short: 'Jue' },
+  { id: 5, name: 'Viernes', short: 'Vie' },
+  { id: 6, name: 'Sábado', short: 'Sáb' },
+  { id: 0, name: 'Domingo', short: 'Dom' },
+];
+
 export function getStoreScheduleStatus(branding, now = new Date()) {
   if (!branding) {
     return {
@@ -48,6 +58,7 @@ export function getStoreScheduleStatus(branding, now = new Date()) {
       statusLabel: 'Abierto Ahora',
       scheduleText: '12:00 a 23:30 hs',
       daysText: 'Lun - Dom',
+      closedDays: [],
       reason: 'Horario normal'
     };
   }
@@ -56,6 +67,7 @@ export function getStoreScheduleStatus(branding, now = new Date()) {
     openingTime = '12:00',
     closingTime = '23:30',
     operatingDays = 'Lun - Dom',
+    closedDays = [],
     isForceClosed = false,
     closedMessage = 'El local se encuentra cerrado en este momento. Te esperamos en nuestro horario habitual.'
   } = branding;
@@ -69,7 +81,27 @@ export function getStoreScheduleStatus(branding, now = new Date()) {
       statusLabel: 'Cerrado Temporalmente',
       scheduleText,
       daysText: operatingDays,
+      closedDays,
       reason: closedMessage || 'El local está cerrado temporalmente por el administrador.'
+    };
+  }
+
+  // Check if today is marked as a closed day
+  const currentDayOfWeek = now.getDay(); // 0 is Sunday, 1 is Monday, ...
+  const isTodayClosedDay = Array.isArray(closedDays) && closedDays.includes(currentDayOfWeek);
+
+  if (isTodayClosedDay) {
+    const dayObj = DAYS_OF_WEEK.find(d => d.id === currentDayOfWeek);
+    const dayName = dayObj ? dayObj.name : 'hoy';
+    return {
+      isOpen: false,
+      isForceClosed: false,
+      isDayClosed: true,
+      statusLabel: 'Cerrado Hoy',
+      scheduleText,
+      daysText: operatingDays,
+      closedDays,
+      reason: `Los ${dayName} el local permanece cerrado.`
     };
   }
 
@@ -92,9 +124,11 @@ export function getStoreScheduleStatus(branding, now = new Date()) {
   return {
     isOpen,
     isForceClosed: false,
+    isDayClosed: false,
     statusLabel: isOpen ? 'Abierto Ahora' : 'Cerrado Ahora',
     scheduleText,
     daysText: operatingDays,
+    closedDays,
     reason: isOpen
       ? `Abierto hasta las ${closingTime} hs`
       : `Cerrado en este momento. Abre a las ${openingTime} hs`

@@ -346,6 +346,7 @@ export const INITIAL_BRANDING = {
   openingTime: '12:00',
   closingTime: '23:30',
   operatingDays: 'Lun - Dom',
+  closedDays: [], // Lista de días cerrados: 0=Domingo, 1=Lunes, 2=Martes, 3=Miércoles, 4=Jueves, 5=Viernes, 6=Sábado
   isForceClosed: false,
   closedMessage: 'El local se encuentra cerrado en este momento. Te esperamos en nuestro horario habitual.',
 };
