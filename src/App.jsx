@@ -22,7 +22,7 @@ import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute';
 import { Clock, MapPin, Compass } from 'lucide-react';
 
 function CustomerMenuView() {
-  const { products, activeCategory, searchQuery, orders } = useRestaurant();
+  const { products, activeCategory, searchQuery, orders, branding } = useRestaurant();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
@@ -92,11 +92,11 @@ function CustomerMenuView() {
             <div className="text-[11px] text-slate-400 space-y-1">
               <p className="flex items-center justify-center gap-1">
                 <Clock className="w-3 h-3 text-slate-400" />
-                <span>Horario de Atención: Lun - Dom | 12:00 a 23:30 hs</span>
+                <span>Horario de Atención: {branding?.operatingDays || 'Lun - Dom'} | {branding?.openingTime || '12:00'} a {branding?.closingTime || '23:30'} hs</span>
               </p>
               <p className="flex items-center justify-center gap-1">
                 <MapPin className="w-3 h-3 text-slate-400" />
-                <span>Burger & Pizza Craft Co. - Sucursal Central</span>
+                <span>{branding?.restaurantName || 'Burger & Pizza Craft Co.'} - Sucursal Central</span>
               </p>
             </div>
           </footer>

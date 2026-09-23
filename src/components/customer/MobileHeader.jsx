@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Clock, MapPin, Bike, ShoppingBag, UtensilsCrossed, X, ShieldCheck } from 'lucide-react';
+import { Search, Clock, MapPin, Bike, ShoppingBag, UtensilsCrossed, X, ShieldCheck, DoorClosed, AlertTriangle } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 
 export default function MobileHeader() {
-  const { searchQuery, setSearchQuery, branding } = useRestaurant();
+  const { searchQuery, setSearchQuery, branding, storeStatus } = useRestaurant();
   const [deliveryMode, setDeliveryMode] = useState('DELIVERY');
+
+  const isOpen = storeStatus?.isOpen ?? true;
 
   const gradientStyle = {
     background: branding?.bannerStyle === 'solid'
@@ -32,13 +34,22 @@ export default function MobileHeader() {
             ) : null}
 
             <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="bg-emerald-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-                  Abierto Ahora
-                </span>
+              <div className="flex items-center gap-2 flex-wrap">
+                {isOpen ? (
+                  <span className="bg-emerald-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                    Abierto Ahora
+                  </span>
+                ) : (
+                  <span className="bg-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-xs border border-rose-300/40">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                    Cerrado Ahora
+                  </span>
+                )}
+
                 <span className="text-xs text-white/90 flex items-center gap-1 font-medium">
-                  <Clock className="w-3 h-3" /> 20 - 35 min
+                  <Clock className="w-3 h-3 text-amber-200" />
+                  <span>{branding?.openingTime || '12:00'} - {branding?.closingTime || '23:30'} hs</span>
                 </span>
               </div>
               <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white m-0">
@@ -62,6 +73,21 @@ export default function MobileHeader() {
             </Link>
           </div>
         </div>
+
+        {/* Banner de Aviso si el local está cerrado */}
+        {!isOpen && (
+          <div className="mt-3 bg-rose-950/85 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-rose-400/40 text-xs text-rose-100 flex items-start gap-2.5 shadow-sm">
+            <DoorClosed className="w-4 h-4 text-rose-300 shrink-0 mt-0.5" />
+            <div className="space-y-0.5">
+              <p className="font-extrabold text-white text-xs">
+                {storeStatus?.isForceClosed ? 'Local cerrado temporalmente' : 'Local cerrado en este momento'}
+              </p>
+              <p className="text-[11px] text-rose-200 leading-tight">
+                {storeStatus?.reason || `Horario de atención: ${branding?.operatingDays || 'Lun - Dom'} de ${branding?.openingTime || '12:00'} a ${branding?.closingTime || '23:30'} hs.`}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Exclusive Takeaway / In-Store Pickup Banner */}
         <div className="mt-3.5 flex items-center justify-between bg-black/25 backdrop-blur-md px-3 py-2 rounded-xl border border-white/15 text-xs text-white">

@@ -41,6 +41,66 @@ export function isPromotionActive(promo, now = new Date()) {
   return checkPromotionStatus(promo, now).active;
 }
 
+export function getStoreScheduleStatus(branding, now = new Date()) {
+  if (!branding) {
+    return {
+      isOpen: true,
+      statusLabel: 'Abierto Ahora',
+      scheduleText: '12:00 a 23:30 hs',
+      daysText: 'Lun - Dom',
+      reason: 'Horario normal'
+    };
+  }
+
+  const {
+    openingTime = '12:00',
+    closingTime = '23:30',
+    operatingDays = 'Lun - Dom',
+    isForceClosed = false,
+    closedMessage = 'El local se encuentra cerrado en este momento. Te esperamos en nuestro horario habitual.'
+  } = branding;
+
+  const scheduleText = `${openingTime} a ${closingTime} hs`;
+
+  if (isForceClosed) {
+    return {
+      isOpen: false,
+      isForceClosed: true,
+      statusLabel: 'Cerrado Temporalmente',
+      scheduleText,
+      daysText: operatingDays,
+      reason: closedMessage || 'El local está cerrado temporalmente por el administrador.'
+    };
+  }
+
+  // Parse hours and minutes
+  const currentMins = now.getHours() * 60 + now.getMinutes();
+  const [sh = 12, sm = 0] = (openingTime || '12:00').split(':').map(Number);
+  const [ch = 23, cm = 30] = (closingTime || '23:30').split(':').map(Number);
+  const openMins = sh * 60 + sm;
+  const closeMins = ch * 60 + cm;
+
+  let isOpen = false;
+  if (openMins <= closeMins) {
+    // Normal schedule e.g. 12:00 to 23:30
+    isOpen = currentMins >= openMins && currentMins < closeMins;
+  } else {
+    // Overnight schedule e.g. 19:00 to 02:00
+    isOpen = currentMins >= openMins || currentMins < closeMins;
+  }
+
+  return {
+    isOpen,
+    isForceClosed: false,
+    statusLabel: isOpen ? 'Abierto Ahora' : 'Cerrado Ahora',
+    scheduleText,
+    daysText: operatingDays,
+    reason: isOpen
+      ? `Abierto hasta las ${closingTime} hs`
+      : `Cerrado en este momento. Abre a las ${openingTime} hs`
+  };
+}
+
 export const PAYMENT_STATUSES = {
   PENDING: { id: 'PENDING', label: 'Pendiente de Pago', color: 'bg-amber-100 text-amber-800 border-amber-300' },
   PAID: { id: 'PAID', label: 'Pagado', color: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
@@ -429,6 +489,8 @@ export function RestaurantProvider({ children }) {
         branding,
         updateBranding,
         resetBranding,
+        storeStatus: getStoreScheduleStatus(branding),
+        getStoreScheduleStatus: (now) => getStoreScheduleStatus(branding, now),
         // Methods
         addProduct,
         updateProduct,

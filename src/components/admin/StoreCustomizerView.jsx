@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useRestaurant } from '../../context/RestaurantContext';
+import { useRestaurant, getStoreScheduleStatus } from '../../context/RestaurantContext';
 import AdminNavbar from './AdminNavbar';
 import {
   Palette,
@@ -21,7 +21,10 @@ import {
   Coffee,
   ShoppingBag,
   Trash2,
-  AlertTriangle
+  AlertTriangle,
+  Clock,
+  DoorClosed,
+  Power
 } from 'lucide-react';
 
 // Tipografías disponibles
@@ -148,7 +151,12 @@ export default function StoreCustomizerView() {
     accentColor: branding?.accentColor || '#10b981',
     headerGradientFrom: branding?.headerGradientFrom || '#d97706',
     headerGradientTo: branding?.headerGradientTo || '#b91c1c',
-    bannerStyle: branding?.bannerStyle || 'gradient'
+    bannerStyle: branding?.bannerStyle || 'gradient',
+    openingTime: branding?.openingTime || '12:00',
+    closingTime: branding?.closingTime || '23:30',
+    operatingDays: branding?.operatingDays || 'Lun - Dom',
+    isForceClosed: branding?.isForceClosed || false,
+    closedMessage: branding?.closedMessage || 'El local se encuentra cerrado en este momento. Te esperamos en nuestro horario habitual.'
   });
 
   const fileInputRef = useRef(null);
@@ -212,7 +220,12 @@ export default function StoreCustomizerView() {
         accentColor: '#10b981',
         headerGradientFrom: '#d97706',
         headerGradientTo: '#b91c1c',
-        bannerStyle: 'gradient'
+        bannerStyle: 'gradient',
+        openingTime: '12:00',
+        closingTime: '23:30',
+        operatingDays: 'Lun - Dom',
+        isForceClosed: false,
+        closedMessage: 'El local se encuentra cerrado en este momento. Te esperamos en nuestro horario habitual.'
       });
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 3000);
@@ -588,6 +601,151 @@ export default function StoreCustomizerView() {
                   </div>
                 </div>
               </div>
+
+              {/* NUEVA SECCIÓN: Horarios de Atención & Apertura */}
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-xs space-y-5">
+                <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                      <Clock className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-sm sm:text-base font-bold text-slate-900 m-0">
+                        Horarios de Atención & Apertura
+                      </h2>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Define la hora en que abre y cierra tu negocio para informar a los clientes y habilitar pedidos
+                      </p>
+                    </div>
+                  </div>
+
+                  <span className={`text-[11px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider border ${
+                    getStoreScheduleStatus(formData).isOpen
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : 'bg-rose-50 text-rose-700 border-rose-200'
+                  }`}>
+                    {getStoreScheduleStatus(formData).statusLabel}
+                  </span>
+                </div>
+
+                {/* Switch de Cierre Forzado Manual */}
+                <div className={`p-4 rounded-2xl border transition-all ${
+                  formData.isForceClosed
+                    ? 'bg-rose-50/80 border-rose-300'
+                    : 'bg-slate-50 border-slate-200'
+                }`}>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <DoorClosed className={`w-4 h-4 ${formData.isForceClosed ? 'text-rose-600' : 'text-slate-500'}`} />
+                        <span className="font-bold text-xs sm:text-sm text-slate-800">
+                          Cerrar Local Temporalmente (Pausa de Emergencia)
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500">
+                        Fuerza el estado a local cerrado inmediatamente, sin importar el horario configurado.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, isForceClosed: !formData.isForceClosed })}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        formData.isForceClosed ? 'bg-rose-600' : 'bg-slate-300'
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                          formData.isForceClosed ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {formData.isForceClosed && (
+                    <div className="mt-3 pt-3 border-t border-rose-200/80 space-y-1.5">
+                      <label className="font-bold text-slate-700 text-xs block">
+                        Mensaje para los clientes mientras esté cerrado:
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.closedMessage}
+                        onChange={(e) => setFormData({ ...formData, closedMessage: e.target.value })}
+                        placeholder="Ej: Local cerrado por reformas / mantenimiento hasta mañana..."
+                        className="w-full px-3 py-2 bg-white border border-rose-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Inputs de Horarios de Apertura y Cierre */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="font-bold text-slate-700 text-xs flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Hora de Apertura:</span>
+                    </label>
+                    <input
+                      type="time"
+                      value={formData.openingTime}
+                      onChange={(e) => setFormData({ ...formData, openingTime: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      required
+                    />
+                    <p className="text-[10px] text-slate-400">
+                      Ej: 12:00 (Mediodía)
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="font-bold text-slate-700 text-xs flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-rose-500" />
+                      <span>Hora de Cierre:</span>
+                    </label>
+                    <input
+                      type="time"
+                      value={formData.closingTime}
+                      onChange={(e) => setFormData({ ...formData, closingTime: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      required
+                    />
+                    <p className="text-[10px] text-slate-400">
+                      Soporta trasnoche (ej: 23:30 o 02:00)
+                    </p>
+                  </div>
+                </div>
+
+                {/* Días de Atención */}
+                <div className="space-y-1.5">
+                  <label className="font-bold text-slate-700 text-xs block">
+                    Días de Operación (Texto visible en menú):
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.operatingDays}
+                    onChange={(e) => setFormData({ ...formData, operatingDays: e.target.value })}
+                    placeholder="Ej: Lun - Dom, Martes a Domingo..."
+                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+
+                {/* Indicador de Estado Actual Calculado */}
+                <div className={`p-3 rounded-2xl flex items-center gap-3 text-xs ${
+                  getStoreScheduleStatus(formData).isOpen
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                    : 'bg-rose-50 text-rose-800 border border-rose-200'
+                }`}>
+                  <div className={`w-3 h-3 rounded-full shrink-0 ${
+                    getStoreScheduleStatus(formData).isOpen ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
+                  }`} />
+                  <div>
+                    <span className="font-bold">
+                      {getStoreScheduleStatus(formData).isOpen ? '🟢 Local Abierto:' : '🔴 Local Cerrado:'}
+                    </span>{' '}
+                    <span>{getStoreScheduleStatus(formData).reason}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -629,9 +787,22 @@ export default function StoreCustomizerView() {
                     )}
 
                     <div className="space-y-0.5">
-                      <span className="bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider inline-block">
-                        Abierto Ahora
-                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {getStoreScheduleStatus(formData).isOpen ? (
+                          <span className="bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider inline-flex items-center gap-1 shadow-xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                            Abierto Ahora
+                          </span>
+                        ) : (
+                          <span className="bg-rose-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider inline-flex items-center gap-1 shadow-xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            Cerrado Ahora
+                          </span>
+                        )}
+                        <span className="text-[10px] text-white/80 font-medium">
+                          {formData.openingTime} - {formData.closingTime} hs
+                        </span>
+                      </div>
                       <h4 className="text-base font-black text-white leading-tight m-0">
                         {formData.restaurantName || 'Nombre del Restaurante'}
                       </h4>
@@ -640,6 +811,18 @@ export default function StoreCustomizerView() {
                       </p>
                     </div>
                   </div>
+
+                  {/* Aviso de Local Cerrado en Preview si aplica */}
+                  {!getStoreScheduleStatus(formData).isOpen && (
+                    <div className="mt-2.5 bg-rose-950/80 border border-rose-400/30 text-rose-100 p-2 rounded-xl text-[10px] flex items-center gap-2">
+                      <DoorClosed className="w-3.5 h-3.5 text-rose-300 shrink-0" />
+                      <span className="leading-tight">
+                        {formData.isForceClosed
+                          ? formData.closedMessage
+                          : `Local cerrado en este momento. Horario: ${formData.openingTime} a ${formData.closingTime} hs`}
+                      </span>
+                    </div>
+                  )}
 
                   {/* Banner de Modalidad */}
                   <div className="mt-3 bg-black/25 backdrop-blur-xs p-2 rounded-xl border border-white/15 flex items-center justify-between text-[10px]">

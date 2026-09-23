@@ -11,13 +11,15 @@ import {
   Building2, 
   Smartphone, 
   Store,
-  Check
+  Check,
+  DoorClosed,
+  AlertTriangle
 } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 
 export default function CheckoutModal({ isOpen, onClose }) {
   const navigate = useNavigate();
-  const { cart, cartTotal, createOrder } = useRestaurant();
+  const { cart, cartTotal, createOrder, storeStatus, branding } = useRestaurant();
 
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -57,6 +59,16 @@ export default function CheckoutModal({ isOpen, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!storeStatus?.isOpen) {
+      setFormError(
+        storeStatus?.isForceClosed
+          ? (branding?.closedMessage || 'El local está cerrado temporalmente y no está recibiendo pedidos.')
+          : `El local está cerrado en este momento. Horario de atención: ${branding?.openingTime || '12:00'} a ${branding?.closingTime || '23:30'} hs.`
+      );
+      return;
+    }
+
     if (!customerName.trim() || !customerPhone.trim()) {
       setFormError('Por favor ingresa tu nombre y número de teléfono.');
       return;
@@ -114,6 +126,20 @@ export default function CheckoutModal({ isOpen, onClose }) {
 
         {/* Modal Form Content */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+          {!storeStatus?.isOpen && (
+            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-2.5 text-xs text-rose-800">
+              <DoorClosed className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <p className="font-bold text-rose-900">
+                  {storeStatus?.isForceClosed ? 'Local cerrado temporalmente' : 'Local actualmente cerrado'}
+                </p>
+                <p className="text-[11px] text-rose-700 leading-tight">
+                  {storeStatus?.reason || `Horario de atención: ${branding?.operatingDays || 'Lun - Dom'} de ${branding?.openingTime || '12:00'} a ${branding?.closingTime || '23:30'} hs.`}
+                </p>
+              </div>
+            </div>
+          )}
+
           {formError && (
             <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
               {formError}

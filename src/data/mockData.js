@@ -342,5 +342,11 @@ export const INITIAL_BRANDING = {
   headerGradientFrom: '#d97706', // Amber-600
   headerGradientTo: '#b91c1c', // Red-700
   bannerStyle: 'gradient', // 'gradient' | 'solid' | 'minimal'
+  // Configuración de Horarios de Apertura y Cierre
+  openingTime: '12:00',
+  closingTime: '23:30',
+  operatingDays: 'Lun - Dom',
+  isForceClosed: false,
+  closedMessage: 'El local se encuentra cerrado en este momento. Te esperamos en nuestro horario habitual.',
 };
 
