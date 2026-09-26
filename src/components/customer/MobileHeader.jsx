@@ -61,15 +61,24 @@ export default function MobileHeader() {
             </div>
           </div>
 
-          {/* Botón de acceso al panel / cocina en la esquina superior derecha */}
-          <div className="shrink-0">
+          {/* Botones de acción en la esquina superior derecha */}
+          <div className="shrink-0 flex items-center gap-2">
+            <Link
+              to="/mi-pedido"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white border border-white/25 text-xs font-bold shadow-sm backdrop-blur-md transition-all active:scale-95"
+              title="Consultar y seguir mi pedido"
+            >
+              <Search className="w-3.5 h-3.5 text-amber-200" />
+              <span>Mi Pedido</span>
+            </Link>
+
             <Link
               to="/admin"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/25 hover:bg-black/40 text-white border border-white/20 text-xs font-bold shadow-sm backdrop-blur-md transition-all active:scale-95"
               title="Acceso Personal, Cocina & Administración"
             >
               <ShieldCheck className="w-3.5 h-3.5 text-amber-300" />
-              <span className="hidden xs:inline sm:inline">Acceso Personal</span>
+              <span className="hidden sm:inline">Acceso Personal</span>
             </Link>
           </div>
         </div>

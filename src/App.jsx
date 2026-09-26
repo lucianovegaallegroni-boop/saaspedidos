@@ -10,6 +10,7 @@ import ProductDetailModal from './components/customer/ProductDetailModal';
 import CartDrawer from './components/customer/CartDrawer';
 import CheckoutModal from './components/customer/CheckoutModal';
 import OrderTrackingView from './components/customer/OrderTrackingView';
+import OrderLookupView from './components/customer/OrderLookupView';
 import BottomNav from './components/customer/BottomNav';
 import OrderKanban from './components/admin/OrderKanban';
 import ProductInventoryManager from './components/admin/ProductInventoryManager';
@@ -19,7 +20,7 @@ import AccountingView from './components/admin/AccountingView';
 import StoreCustomizerView from './components/admin/StoreCustomizerView';
 import AdminLogin from './components/admin/AdminLogin';
 import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute';
-import { Clock, MapPin, Compass } from 'lucide-react';
+import { Clock, MapPin, Compass, Search } from 'lucide-react';
 
 function CustomerMenuView() {
   const { products, activeCategory, searchQuery, orders, branding } = useRestaurant();
@@ -76,18 +77,29 @@ function CustomerMenuView() {
 
           {/* Customer Restaurant Footer */}
           <footer className="pt-6 pb-4 border-t border-slate-200/80 text-center space-y-3">
-            {hasRecentOrder && (
-              <div className="p-3 bg-amber-500/10 border border-amber-300/60 rounded-2xl max-w-md mx-auto">
-                <p className="text-xs text-amber-900 font-medium">¿Realizaste una orden recientemente?</p>
+            <div className="p-3 bg-amber-500/10 border border-amber-300/60 rounded-2xl max-w-md mx-auto space-y-2">
+              <p className="text-xs text-amber-900 font-medium">
+                {hasRecentOrder ? '¿Quieres ver el estado de tu pedido?' : '¿Ya realizaste un pedido y quieres ver su estado?'}
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {hasRecentOrder && (
+                  <Link
+                    to={`/seguimiento/${orders[0].id}`}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold shadow-xs transition-all"
+                  >
+                    <Compass className="w-3.5 h-3.5" />
+                    <span>Ver Último Pedido (#{orders[0].id})</span>
+                  </Link>
+                )}
                 <Link
-                  to={`/seguimiento/${orders[0].id}`}
-                  className="mt-1.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold shadow-xs transition-all"
+                  to="/mi-pedido"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-amber-300 text-slate-900 text-xs font-bold shadow-xs transition-all"
                 >
-                  <Compass className="w-3.5 h-3.5" />
-                  <span>Consultar Seguimiento (#{orders[0].id})</span>
+                  <Search className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Buscar por Teléfono</span>
                 </Link>
               </div>
-            )}
+            </div>
 
             <div className="text-[11px] text-slate-400 space-y-1">
               <p className="flex items-center justify-center gap-1">
@@ -133,9 +145,10 @@ export default function App() {
             {/* 1. Vista Pública de Menú Cliente (Página inicial limpia) */}
             <Route path="/" element={<CustomerMenuView />} />
 
-            {/* 2. Vista de Seguimiento Dinámica Única por Pedido */}
+            {/* 2. Vista de Búsqueda y Seguimiento de Pedidos */}
+            <Route path="/mi-pedido" element={<OrderLookupView />} />
+            <Route path="/seguimiento" element={<OrderLookupView />} />
             <Route path="/seguimiento/:orderId" element={<OrderTrackingView />} />
-            <Route path="/seguimiento" element={<Navigate to="/" replace />} />
 
             {/* 3. Pantalla de Login Administrativo */}
             <Route path="/admin/login" element={<AdminLogin />} />

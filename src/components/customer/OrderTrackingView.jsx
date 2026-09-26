@@ -79,12 +79,20 @@ export default function OrderTrackingView() {
             No se encontró ningún pedido con el identificador <strong>#{orderId || 'Desconocido'}</strong>. Verifica que el enlace sea correcto.
           </p>
         </div>
-        <button
-          onClick={() => navigate('/')}
-          className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-bold rounded-xl text-xs transition-all shadow-xs cursor-pointer"
-        >
-          Volver al Menú
-        </button>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 w-full max-w-xs">
+          <button
+            onClick={() => navigate('/mi-pedido')}
+            className="w-full sm:w-auto px-5 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-bold rounded-xl text-xs transition-all shadow-xs cursor-pointer"
+          >
+            Buscar por mi Teléfono
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            className="w-full sm:w-auto px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-100 active:scale-95 text-slate-700 font-bold rounded-xl text-xs transition-all shadow-xs cursor-pointer"
+          >
+            Volver al Menú
+          </button>
+        </div>
       </div>
     );
   }
