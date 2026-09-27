@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Clock, MapPin, Bike, ShoppingBag, UtensilsCrossed, X, ShieldCheck, DoorClosed, AlertTriangle, LogOut, User } from 'lucide-react';
+import { Search, Clock, MapPin, Bike, ShoppingBag, UtensilsCrossed, X, ShieldCheck, DoorClosed, AlertTriangle, LogOut, User, Home } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { useAuth } from '../../context/AuthContext';
 
@@ -65,6 +65,15 @@ export default function MobileHeader() {
 
           {/* Botones de acción en la esquina superior derecha */}
           <div className="shrink-0 flex items-center gap-1.5 sm:gap-2">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-black/25 hover:bg-black/40 text-white border border-white/20 text-xs font-bold shadow-sm backdrop-blur-md transition-all active:scale-95"
+              title="Volver a la Página de Inicio"
+            >
+              <Home className="w-3.5 h-3.5 text-amber-300" />
+              <span className="hidden xs:inline">Inicio</span>
+            </Link>
+
             <Link
               to="/mi-pedido"
               className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white border border-white/25 text-xs font-bold shadow-sm backdrop-blur-md transition-all active:scale-95"

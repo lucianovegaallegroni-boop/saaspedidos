@@ -139,22 +139,6 @@ function CustomerMenuView() {
   );
 }
 
-function RootRouteHandler() {
-  const { isAuthenticated, currentUser, getDefaultLandingPath } = useAuth();
-
-  if (!isAuthenticated || !currentUser) {
-    return <HomeLoginView />;
-  }
-
-  // Si es un cliente autenticado, accede al Menú Digital
-  if (currentUser.role === 'CUSTOMER') {
-    return <CustomerMenuView />;
-  }
-
-  // Si es personal administrativo, redirige a su panel asignado
-  return <Navigate to={getDefaultLandingPath(currentUser)} replace />;
-}
-
 export default function App() {
   return (
     <RestaurantProvider>
@@ -162,7 +146,7 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             {/* 1. Página de Inicio de la Aplicación con Login Integrado */}
-            <Route path="/" element={<RootRouteHandler />} />
+            <Route path="/" element={<HomeLoginView />} />
             <Route path="/login" element={<HomeLoginView />} />
             <Route path="/admin/login" element={<HomeLoginView />} />
 
