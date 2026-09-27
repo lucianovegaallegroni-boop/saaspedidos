@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRestaurant, PAYMENT_STATUSES, OPERATIONAL_STATUSES } from '../../context/RestaurantContext';
-import { useAuth } from '../../context/AuthContext';
 import { 
   CheckCircle2, 
   Clock, 
@@ -14,15 +13,13 @@ import {
   Check,
   Share2,
   Utensils,
-  Store,
-  LogOut
+  Store
 } from 'lucide-react';
 
 export default function OrderTrackingView() {
   const navigate = useNavigate();
   const { orderId } = useParams();
   const { orders, products } = useRestaurant();
-  const { currentUser, logout } = useAuth();
   const [copied, setCopied] = useState(false);
 
   // Buscar estrictamente el pedido único especificado en la URL dinámica
@@ -162,21 +159,9 @@ export default function OrderTrackingView() {
             <ArrowLeft className="w-4 h-4" />
             <span>Volver al Menú</span>
           </button>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700">
-              Seguimiento en Vivo
-            </span>
-            {currentUser && (
-              <button
-                type="button"
-                onClick={() => logout()}
-                title="Cerrar Sesión"
-                className="p-1 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-rose-300 border border-slate-700 transition-all cursor-pointer"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
+          <span className="text-[11px] text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700">
+            Seguimiento en Vivo
+          </span>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">

@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Clock, MapPin, Bike, ShoppingBag, UtensilsCrossed, X, ShieldCheck, DoorClosed, AlertTriangle, LogOut, User, Home } from 'lucide-react';
+import { Search, Clock, MapPin, Bike, ShoppingBag, UtensilsCrossed, X, ShieldCheck, DoorClosed, AlertTriangle } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
-import { useAuth } from '../../context/AuthContext';
 
 export default function MobileHeader() {
   const { searchQuery, setSearchQuery, branding, storeStatus } = useRestaurant();
-  const { currentUser, logout } = useAuth();
   const [deliveryMode, setDeliveryMode] = useState('DELIVERY');
 
   const isOpen = storeStatus?.isOpen ?? true;
@@ -64,53 +62,24 @@ export default function MobileHeader() {
           </div>
 
           {/* Botones de acción en la esquina superior derecha */}
-          <div className="shrink-0 flex items-center gap-1.5 sm:gap-2">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-black/25 hover:bg-black/40 text-white border border-white/20 text-xs font-bold shadow-sm backdrop-blur-md transition-all active:scale-95"
-              title="Volver a la Página de Inicio"
-            >
-              <Home className="w-3.5 h-3.5 text-amber-300" />
-              <span className="hidden xs:inline">Inicio</span>
-            </Link>
-
+          <div className="shrink-0 flex items-center gap-2">
             <Link
               to="/mi-pedido"
-              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white border border-white/25 text-xs font-bold shadow-sm backdrop-blur-md transition-all active:scale-95"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white border border-white/25 text-xs font-bold shadow-sm backdrop-blur-md transition-all active:scale-95"
               title="Consultar y seguir mi pedido"
             >
               <Search className="w-3.5 h-3.5 text-amber-200" />
-              <span className="hidden xs:inline">Mi Pedido</span>
+              <span>Mi Pedido</span>
             </Link>
 
-            {currentUser && currentUser.role !== 'CUSTOMER' && (
-              <Link
-                to="/admin"
-                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-black/25 hover:bg-black/40 text-white border border-white/20 text-xs font-bold shadow-sm backdrop-blur-md transition-all active:scale-95"
-                title="Acceso Personal, Cocina & Administración"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-300" />
-                <span className="hidden sm:inline">Panel</span>
-              </Link>
-            )}
-
-            {/* Chip de usuario y botón de cerrar sesión */}
-            {currentUser && (
-              <div className="flex items-center gap-1 bg-black/30 border border-white/20 rounded-xl px-2 py-1 text-xs">
-                <div className="flex items-center gap-1 text-[11px] font-semibold text-white/90">
-                  <User className="w-3 h-3 text-amber-300 shrink-0" />
-                  <span className="hidden sm:inline max-w-[80px] truncate">{currentUser.username}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => logout()}
-                  title="Cerrar Sesión"
-                  className="p-1 rounded-lg text-rose-300 hover:text-rose-100 hover:bg-rose-500/20 transition-all cursor-pointer"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/25 hover:bg-black/40 text-white border border-white/20 text-xs font-bold shadow-sm backdrop-blur-md transition-all active:scale-95"
+              title="Acceso Personal, Cocina & Administración"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-300" />
+              <span className="hidden sm:inline">Acceso Personal</span>
+            </Link>
           </div>
         </div>
 

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useRestaurant, OPERATIONAL_STATUSES, PAYMENT_STATUSES } from '../../context/RestaurantContext';
-import { useAuth } from '../../context/AuthContext';
 import { 
   Search, 
   Phone, 
@@ -14,14 +13,12 @@ import {
   UtensilsCrossed, 
   ChefHat,
   Sparkles,
-  ExternalLink,
-  LogOut
+  ExternalLink
 } from 'lucide-react';
 
 export default function OrderLookupView() {
   const navigate = useNavigate();
   const { orders = [], branding } = useRestaurant();
-  const { currentUser, logout } = useAuth();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -94,21 +91,9 @@ export default function OrderLookupView() {
               <span>Volver al Menú</span>
             </Link>
 
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-extrabold text-amber-200 uppercase tracking-wider">
-                Seguimiento
-              </span>
-              {currentUser && (
-                <button
-                  type="button"
-                  onClick={() => logout()}
-                  title="Cerrar Sesión"
-                  className="p-1 rounded-lg bg-black/25 hover:bg-rose-600/40 text-rose-200 border border-white/20 transition-all cursor-pointer"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
+            <span className="text-xs font-extrabold text-amber-200 uppercase tracking-wider">
+              Seguimiento
+            </span>
           </div>
 
           <div className="max-w-md mx-auto text-center mt-6 space-y-1.5">
