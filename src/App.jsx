@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { RestaurantProvider, useRestaurant } from './context/RestaurantContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import MobileHeader from './components/customer/MobileHeader';
 import CategoryPills from './components/customer/CategoryPills';
 import FeaturedPromos from './components/customer/FeaturedPromos';
@@ -20,6 +20,7 @@ import AccountingView from './components/admin/AccountingView';
 import StoreCustomizerView from './components/admin/StoreCustomizerView';
 import AdminLogin from './components/admin/AdminLogin';
 import LoginView from './components/auth/LoginView';
+import HomeLoginView from './components/auth/HomeLoginView';
 import RequireAuth from './components/auth/RequireAuth';
 import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute';
 import { Clock, MapPin, Compass, Search } from 'lucide-react';
@@ -138,20 +139,37 @@ function CustomerMenuView() {
   );
 }
 
+function RootRouteHandler() {
+  const { isAuthenticated, currentUser, getDefaultLandingPath } = useAuth();
+
+  if (!isAuthenticated || !currentUser) {
+    return <HomeLoginView />;
+  }
+
+  // Si es un cliente autenticado, accede al Menú Digital
+  if (currentUser.role === 'CUSTOMER') {
+    return <CustomerMenuView />;
+  }
+
+  // Si es personal administrativo, redirige a su panel asignado
+  return <Navigate to={getDefaultLandingPath(currentUser)} replace />;
+}
+
 export default function App() {
   return (
     <RestaurantProvider>
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            {/* 1. Pantalla Pública de Autenticación (Login) */}
-            <Route path="/login" element={<LoginView />} />
-            <Route path="/admin/login" element={<LoginView />} />
+            {/* 1. Página de Inicio de la Aplicación con Login Integrado */}
+            <Route path="/" element={<RootRouteHandler />} />
+            <Route path="/login" element={<HomeLoginView />} />
+            <Route path="/admin/login" element={<HomeLoginView />} />
 
-            {/* 2. Todas las vistas del sistema protegidas (requieren sesión activa) */}
+            {/* 2. Vistas del sistema protegidas (requieren sesión activa) */}
             <Route element={<RequireAuth />}>
               {/* Menú Cliente */}
-              <Route path="/" element={<CustomerMenuView />} />
+              <Route path="/menu" element={<CustomerMenuView />} />
 
               {/* Búsqueda y Seguimiento de Pedidos */}
               <Route path="/mi-pedido" element={<OrderLookupView />} />
@@ -209,8 +227,8 @@ export default function App() {
               />
             </Route>
 
-            {/* Redirección por defecto a /login */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
