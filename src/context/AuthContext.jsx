@@ -11,7 +11,7 @@ export const SYSTEM_USERS = [
     role: 'ADMIN',
     roleLabel: 'Administrador (Todo el Sistema)',
     defaultLandingPath: '/admin',
-    allowedPaths: ['/admin', '/admin/cocina', '/admin/inventario', '/admin/promociones', '/admin/contabilidad', '/admin/configuracion'],
+    allowedPaths: ['/admin', '/admin/cocina', '/admin/inventario', '/admin/promociones', '/admin/contabilidad', '/admin/configuracion', '/', '/mi-pedido', '/seguimiento'],
     badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/30'
   },
   {
@@ -21,7 +21,7 @@ export const SYSTEM_USERS = [
     role: 'KITCHEN',
     roleLabel: 'Cocina & Pedidos',
     defaultLandingPath: '/admin/cocina',
-    allowedPaths: ['/admin/cocina'],
+    allowedPaths: ['/admin/cocina', '/', '/mi-pedido', '/seguimiento'],
     badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30'
   },
   {
@@ -31,8 +31,18 @@ export const SYSTEM_USERS = [
     role: 'MANAGER',
     roleLabel: 'Gerente (Catálogo, Promos & Marca)',
     defaultLandingPath: '/admin/inventario',
-    allowedPaths: ['/admin/inventario', '/admin/promociones', '/admin/configuracion'],
+    allowedPaths: ['/admin/inventario', '/admin/promociones', '/admin/configuracion', '/', '/mi-pedido', '/seguimiento'],
     badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
+  },
+  {
+    username: 'cliente',
+    password: '123',
+    name: 'Cliente Demo',
+    role: 'CUSTOMER',
+    roleLabel: 'Cliente (Menú & Pedidos)',
+    defaultLandingPath: '/',
+    allowedPaths: ['/', '/mi-pedido', '/seguimiento'],
+    badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
   }
 ];
 
@@ -55,29 +65,50 @@ export function AuthProvider({ children }) {
   }, [currentUser]);
 
   const login = (username, password) => {
-    const trimmedUser = username.trim().toLowerCase();
-    const found = SYSTEM_USERS.find(
-      (u) => u.username === trimmedUser && u.password === password
-    );
+    const trimmedUser = String(username || '').trim().toLowerCase();
+    const cleanPass = String(password || '').trim();
 
-    if (found) {
-      const userData = {
-        username: found.username,
-        name: found.name,
-        role: found.role,
-        roleLabel: found.roleLabel,
-        defaultLandingPath: found.defaultLandingPath,
-        allowedPaths: found.allowedPaths,
-        badgeColor: found.badgeColor
+    if (!trimmedUser || !cleanPass) {
+      return {
+        success: false,
+        error: 'Por favor ingresa usuario y contraseña.'
       };
-      setCurrentUser(userData);
-      return { success: true, user: userData };
     }
 
-    return {
-      success: false,
-      error: 'Usuario o contraseña incorrectos. Verifica las credenciales de prueba.'
+    const found = SYSTEM_USERS.find((u) => u.username === trimmedUser);
+
+    if (found) {
+      if (found.password === cleanPass) {
+        const userData = {
+          username: found.username,
+          name: found.name,
+          role: found.role,
+          roleLabel: found.roleLabel,
+          defaultLandingPath: found.defaultLandingPath,
+          allowedPaths: found.allowedPaths,
+          badgeColor: found.badgeColor
+        };
+        setCurrentUser(userData);
+        return { success: true, user: userData };
+      }
+      return {
+        success: false,
+        error: `Contraseña incorrecta para el usuario ${found.username}.`
+      };
+    }
+
+    // Si es un nuevo cliente ingresando con cualquier usuario
+    const customerData = {
+      username: trimmedUser,
+      name: username.trim(),
+      role: 'CUSTOMER',
+      roleLabel: 'Cliente Registrado',
+      defaultLandingPath: '/',
+      allowedPaths: ['/', '/mi-pedido', '/seguimiento'],
+      badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
     };
+    setCurrentUser(customerData);
+    return { success: true, user: customerData };
   };
 
   const logout = () => {
@@ -87,12 +118,20 @@ export function AuthProvider({ children }) {
   const canAccessPath = (path) => {
     if (!currentUser) return false;
     if (currentUser.role === 'ADMIN') return true;
-    return currentUser.allowedPaths?.includes(path);
+    if (path.startsWith('/admin') && currentUser.role === 'CUSTOMER') return false;
+    if (currentUser.allowedPaths) {
+      return currentUser.allowedPaths.some((p) => path === p || path.startsWith(p + '/'));
+    }
+    return false;
   };
 
   const getDefaultLandingPath = (user = currentUser) => {
-    if (!user) return '/admin/login';
-    return user.defaultLandingPath || (user.role === 'KITCHEN' ? '/admin/cocina' : user.role === 'MANAGER' ? '/admin/inventario' : '/admin');
+    if (!user) return '/login';
+    if (user.defaultLandingPath) return user.defaultLandingPath;
+    if (user.role === 'ADMIN') return '/admin';
+    if (user.role === 'KITCHEN') return '/admin/cocina';
+    if (user.role === 'MANAGER') return '/admin/inventario';
+    return '/';
   };
 
   return (

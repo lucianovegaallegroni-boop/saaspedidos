@@ -9,7 +9,7 @@ export default function ProtectedAdminRoute({ children, requiredPath }) {
 
   if (!isAuthenticated || !currentUser) {
     // Redirect to login preserving the attempted destination
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // If the user lands on generic '/admin' but their role is specifically assigned to another view (e.g. kitchen -> /admin/cocina, manager -> /admin/inventario)

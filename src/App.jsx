@@ -19,6 +19,8 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import AccountingView from './components/admin/AccountingView';
 import StoreCustomizerView from './components/admin/StoreCustomizerView';
 import AdminLogin from './components/admin/AdminLogin';
+import LoginView from './components/auth/LoginView';
+import RequireAuth from './components/auth/RequireAuth';
 import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute';
 import { Clock, MapPin, Compass, Search } from 'lucide-react';
 
@@ -142,69 +144,73 @@ export default function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            {/* 1. Vista Pública de Menú Cliente (Página inicial limpia) */}
-            <Route path="/" element={<CustomerMenuView />} />
+            {/* 1. Pantalla Pública de Autenticación (Login) */}
+            <Route path="/login" element={<LoginView />} />
+            <Route path="/admin/login" element={<LoginView />} />
 
-            {/* 2. Vista de Búsqueda y Seguimiento de Pedidos */}
-            <Route path="/mi-pedido" element={<OrderLookupView />} />
-            <Route path="/seguimiento" element={<OrderLookupView />} />
-            <Route path="/seguimiento/:orderId" element={<OrderTrackingView />} />
+            {/* 2. Todas las vistas del sistema protegidas (requieren sesión activa) */}
+            <Route element={<RequireAuth />}>
+              {/* Menú Cliente */}
+              <Route path="/" element={<CustomerMenuView />} />
 
-            {/* 3. Pantalla de Login Administrativo */}
-            <Route path="/admin/login" element={<AdminLogin />} />
+              {/* Búsqueda y Seguimiento de Pedidos */}
+              <Route path="/mi-pedido" element={<OrderLookupView />} />
+              <Route path="/seguimiento" element={<OrderLookupView />} />
+              <Route path="/seguimiento/:orderId" element={<OrderTrackingView />} />
 
-            {/* 4. Vistas de Administración Protegidas por Rol */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedAdminRoute requiredPath="/admin">
-                  <AdminDashboard />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/admin/cocina"
-              element={
-                <ProtectedAdminRoute requiredPath="/admin/cocina">
-                  <OrderKanban />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/admin/inventario"
-              element={
-                <ProtectedAdminRoute requiredPath="/admin/inventario">
-                  <ProductInventoryManager />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/admin/promociones"
-              element={
-                <ProtectedAdminRoute requiredPath="/admin/promociones">
-                  <PromotionManager />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/admin/contabilidad"
-              element={
-                <ProtectedAdminRoute requiredPath="/admin/contabilidad">
-                  <AccountingView />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/admin/configuracion"
-              element={
-                <ProtectedAdminRoute requiredPath="/admin/configuracion">
-                  <StoreCustomizerView />
-                </ProtectedAdminRoute>
-              }
-            />
+              {/* Vistas de Administración Protegidas por Rol */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedAdminRoute requiredPath="/admin">
+                    <AdminDashboard />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/cocina"
+                element={
+                  <ProtectedAdminRoute requiredPath="/admin/cocina">
+                    <OrderKanban />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/inventario"
+                element={
+                  <ProtectedAdminRoute requiredPath="/admin/inventario">
+                    <ProductInventoryManager />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/promociones"
+                element={
+                  <ProtectedAdminRoute requiredPath="/admin/promociones">
+                    <PromotionManager />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/contabilidad"
+                element={
+                  <ProtectedAdminRoute requiredPath="/admin/contabilidad">
+                    <AccountingView />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/configuracion"
+                element={
+                  <ProtectedAdminRoute requiredPath="/admin/configuracion">
+                    <StoreCustomizerView />
+                  </ProtectedAdminRoute>
+                }
+              />
+            </Route>
 
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            {/* Redirección por defecto a /login */}
+            <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
